@@ -8,15 +8,15 @@ export const getAllResumes = async (req: Request, res: Response) => {
     const { rows }: any = await pool.query(`
       SELECT 
         r.id as resume_id,
-        r.resume_name,
-        r.resume_data,
-        r.updated_at,
+        r.name as resume_name,
+        r.data as resume_data,
+        r.last_updated as updated_at,
         u.id as user_id,
         u.name as user_name,
         u.email as user_email
       FROM resumes r
       LEFT JOIN users u ON r.user_id = u.id
-      ORDER BY r.updated_at DESC
+      ORDER BY r.last_updated DESC
     `);
     
     // Parse JSON data for structured output

@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { randomUUID } from 'crypto';
 import pool from '../config/db';
 
 const client = new OAuth2Client(
@@ -11,7 +10,7 @@ const client = new OAuth2Client(
   `${process.env.BASE_URL}/api/auth/google/callback`
 );
 
-const generateToken = (userId: string, email: string) => {
+const generateToken = (userId: number | string, email: string) => {
   return jwt.sign({ id: userId, email }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: '7d' });
 };
 
@@ -45,12 +44,11 @@ export const googleLogin = async (req: Request, res: Response) => {
 
     if (!user) {
       // Create user
-      const id = randomUUID();
-      await pool.query(
-        'INSERT INTO users (id, google_id, email, name, avatar) VALUES ($1, $2, $3, $4, $5)',
-        [id, googleId, email, name, avatar]
+      const { rows: inserted }: any = await pool.query(
+        'INSERT INTO users (google_id, email, name, avatar) VALUES ($1, $2, $3, $4) RETURNING id',
+        [googleId, email, name, avatar]
       );
-      user = { id, email, name, avatar };
+      user = { id: inserted[0].id, email, name, avatar };
     } else if (!user.google_id) {
       // Link Google account to existing email user
       await pool.query('UPDATE users SET google_id = $1, avatar = $2 WHERE email = $3', [googleId, avatar, email]);
@@ -99,12 +97,11 @@ export const googleAuthCallback = async (req: Request, res: Response) => {
     let user = rows[0];
 
     if (!user) {
-      const id = randomUUID();
-      await pool.query(
-        'INSERT INTO users (id, google_id, email, name, avatar) VALUES ($1, $2, $3, $4, $5)',
-        [id, googleId, email, name, avatar]
+      const { rows: inserted }: any = await pool.query(
+        'INSERT INTO users (google_id, email, name, avatar) VALUES ($1, $2, $3, $4) RETURNING id',
+        [googleId, email, name, avatar]
       );
-      user = { id, email, name, avatar };
+      user = { id: inserted[0].id, email, name, avatar };
     } else if (!user.google_id) {
       await pool.query('UPDATE users SET google_id = $1, avatar = $2 WHERE email = $3', [googleId, avatar, email]);
       user.google_id = googleId;
@@ -129,13 +126,13 @@ export const register = async (req: Request, res: Response) => {
     const { rows }: any = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (rows.length > 0) return res.status(400).json({ error: 'Email already exists' });
 
-    const id = randomUUID();
     const passwordHash = await bcrypt.hash(password, 10);
     
-    await pool.query(
-      'INSERT INTO users (id, email, name, password_hash) VALUES ($1, $2, $3, $4)',
-      [id, email, name, passwordHash]
+    const { rows: inserted }: any = await pool.query(
+      'INSERT INTO users (email, name, password_hash) VALUES ($1, $2, $3) RETURNING id',
+      [email, name, passwordHash]
     );
+    const id = inserted[0].id;
 
     const token = generateToken(id, email);
     setSessionCookie(res, token);

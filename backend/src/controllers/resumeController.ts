@@ -15,8 +15,9 @@ export const getResumeById = async (req: Request, res: Response) => {
     
     // Map traditional structure or single resume_data column
     const dbData = rows[0];
-    if (dbData.resume_data) {
-      return res.json({ id: dbData.id, ...dbData.resume_data });
+    if (dbData.data || dbData.resume_data) {
+      const parsedData = dbData.data || dbData.resume_data;
+      return res.json({ id: dbData.id, ...parsedData });
     }
     
     // Fallback mapping for old data
@@ -76,7 +77,7 @@ export const submitResume = async (req: Request, res: Response) => {
       }
       
       await pool.query(
-        'UPDATE resumes SET resume_name = $1, resume_data = $2, updated_at = NOW() WHERE id = $3',
+        'UPDATE resumes SET name = $1, data = $2, last_updated = NOW() WHERE id = $3',
         [data.resumeName || 'Untitled Resume', JSON.stringify(data), resumeId]
       );
     } else {
@@ -86,11 +87,11 @@ export const submitResume = async (req: Request, res: Response) => {
         return res.status(400).json({ error: 'Maximum 5 resumes allowed.' });
       }
 
-      resumeId = randomUUID();
-      await pool.query(
-        'INSERT INTO resumes (id, user_id, resume_name, resume_data) VALUES ($1, $2, $3, $4)',
-        [resumeId, userId, data.resumeName || 'Untitled Resume', JSON.stringify(data)]
+      const { rows: inserted }: any = await pool.query(
+        'INSERT INTO resumes (user_id, name, data) VALUES ($1, $2, $3) RETURNING id',
+        [userId, data.resumeName || 'Untitled Resume', JSON.stringify(data)]
       );
+      resumeId = inserted[0].id;
     }
 
     res.status(200).json({ id: resumeId, message: 'Resume saved successfully' });
@@ -114,7 +115,8 @@ export const getResumePdf = async (req: Request, res: Response) => {
     const dbData = rows[0];
 
     // Read full JSON or fallback map DB columns
-    const resumeData = dbData.resume_data ? dbData.resume_data : {
+    const parsedData = dbData.data || dbData.resume_data;
+    const resumeData = parsedData ? parsedData : {
       personalDetails: dbData.personal_details || {},
       summary: dbData.summary || '',
       education: dbData.education || [],
@@ -166,18 +168,18 @@ export const getUserResumes = async (req: Request, res: Response) => {
     const userId = authReq.user?.id;
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
-    const { rows }: any = await pool.query('SELECT id, resume_name, resume_data, updated_at FROM resumes WHERE user_id = $1 ORDER BY updated_at DESC', [userId]);
+    const { rows }: any = await pool.query('SELECT id, name, data, last_updated FROM resumes WHERE user_id = $1 ORDER BY last_updated DESC', [userId]);
     
     // Parse the display info to make the list lightweight
     const resumes = rows.map((r: any) => {
-      let title = r.resume_name && r.resume_name !== 'Untitled Resume' ? r.resume_name : "Untitled Resume";
-      if (title === "Untitled Resume" && r.resume_data && r.resume_data.personalDetails && r.resume_data.personalDetails.fullName) {
-        title = r.resume_data.personalDetails.fullName + " Resume";
+      let title = r.name && r.name !== 'Untitled Resume' ? r.name : "Untitled Resume";
+      if (title === "Untitled Resume" && r.data && r.data.personalDetails && r.data.personalDetails.fullName) {
+        title = r.data.personalDetails.fullName + " Resume";
       }
       return {
         id: r.id,
         title,
-        updatedAt: r.updated_at
+        updatedAt: r.last_updated
       };
     });
 
