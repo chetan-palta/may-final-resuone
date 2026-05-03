@@ -7,7 +7,7 @@ import { generatePdf } from '../services/pdfService';
 export const getResumeById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const [rows]: any = await pool.query('SELECT * FROM resumes WHERE id = ?', [id]);
+    const { rows }: any = await pool.query('SELECT * FROM resumes WHERE id = $1', [id]);
     
     if (rows.length === 0) {
       return res.status(404).json({ error: 'Resume not found' });
@@ -70,25 +70,25 @@ export const submitResume = async (req: Request, res: Response) => {
     // Determine if updating or creating
     let resumeId = data.id;
     if (resumeId) {
-      const [existing]: any = await pool.query('SELECT id FROM resumes WHERE id = ? AND user_id = ?', [resumeId, userId]);
+      const { rows: existing }: any = await pool.query('SELECT id FROM resumes WHERE id = $1 AND user_id = $2', [resumeId, userId]);
       if (existing.length === 0) {
         return res.status(403).json({ error: 'Not authorized to update this resume or resume not found' });
       }
       
       await pool.query(
-        'UPDATE resumes SET resume_name = ?, resume_data = ?, updated_at = NOW() WHERE id = ?',
+        'UPDATE resumes SET resume_name = $1, resume_data = $2, updated_at = NOW() WHERE id = $3',
         [data.resumeName || 'Untitled Resume', JSON.stringify(data), resumeId]
       );
     } else {
       // Check limit for new resume
-      const [userResumes]: any = await pool.query('SELECT COUNT(*) as count FROM resumes WHERE user_id = ?', [userId]);
+      const { rows: userResumes }: any = await pool.query('SELECT COUNT(*) as count FROM resumes WHERE user_id = $1', [userId]);
       if (userResumes[0].count >= 5) {
         return res.status(400).json({ error: 'Maximum 5 resumes allowed.' });
       }
 
       resumeId = randomUUID();
       await pool.query(
-        'INSERT INTO resumes (id, user_id, resume_name, resume_data) VALUES (?, ?, ?, ?)',
+        'INSERT INTO resumes (id, user_id, resume_name, resume_data) VALUES ($1, $2, $3, $4)',
         [resumeId, userId, data.resumeName || 'Untitled Resume', JSON.stringify(data)]
       );
     }
@@ -105,7 +105,7 @@ export const getResumePdf = async (req: Request, res: Response) => {
     const { id } = req.params;
     
     // Fetch from database
-    const [rows]: any = await pool.query('SELECT * FROM resumes WHERE id = ?', [id]);
+    const { rows }: any = await pool.query('SELECT * FROM resumes WHERE id = $1', [id]);
     
     if (rows.length === 0) {
       return res.status(404).json({ error: 'Resume not found' });
@@ -166,7 +166,7 @@ export const getUserResumes = async (req: Request, res: Response) => {
     const userId = authReq.user?.id;
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
-    const [rows]: any = await pool.query('SELECT id, resume_name, resume_data, updated_at FROM resumes WHERE user_id = ? ORDER BY updated_at DESC', [userId]);
+    const { rows }: any = await pool.query('SELECT id, resume_name, resume_data, updated_at FROM resumes WHERE user_id = $1 ORDER BY updated_at DESC', [userId]);
     
     // Parse the display info to make the list lightweight
     const resumes = rows.map((r: any) => {
@@ -195,9 +195,9 @@ export const deleteResume = async (req: Request, res: Response) => {
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
     const { id } = req.params;
-    const [result]: any = await pool.query('DELETE FROM resumes WHERE id = ? AND user_id = ?', [id, userId]);
+    const result: any = await pool.query('DELETE FROM resumes WHERE id = $1 AND user_id = $2', [id, userId]);
 
-    if (result.affectedRows === 0) {
+    if (result.rowCount === 0) {
       return res.status(404).json({ error: 'Resume not found or unauthorized' });
     }
 

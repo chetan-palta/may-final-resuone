@@ -5,7 +5,7 @@ export const getAllResumes = async (req: Request, res: Response) => {
   try {
     // Note: In a real system, you'd have an isAdmin check. We assume protected or basic level for this requirement.
 
-    const [rows]: any = await pool.query(`
+    const { rows }: any = await pool.query(`
       SELECT 
         r.id as resume_id,
         r.resume_name,

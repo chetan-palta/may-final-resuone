@@ -5,7 +5,7 @@ import { authenticateToken } from '../utils/authMiddleware';
 const router = Router();
 
 router.post('/google', googleLogin);
-router.get('/google/url', googleAuthInitiate);
+router.get('/google', googleAuthInitiate);
 router.get('/google/callback', googleAuthCallback);
 router.post('/register', register);
 router.post('/login', login);

@@ -40,20 +40,20 @@ export const googleLogin = async (req: Request, res: Response) => {
     const { email, sub: googleId, name, picture: avatar } = payload;
     
     // Check if user exists
-    const [rows]: any = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+    const { rows }: any = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     let user = rows[0];
 
     if (!user) {
       // Create user
       const id = randomUUID();
       await pool.query(
-        'INSERT INTO users (id, google_id, email, name, avatar) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO users (id, google_id, email, name, avatar) VALUES ($1, $2, $3, $4, $5)',
         [id, googleId, email, name, avatar]
       );
       user = { id, email, name, avatar };
     } else if (!user.google_id) {
       // Link Google account to existing email user
-      await pool.query('UPDATE users SET google_id = ?, avatar = ? WHERE email = ?', [googleId, avatar, email]);
+      await pool.query('UPDATE users SET google_id = $1, avatar = $2 WHERE email = $3', [googleId, avatar, email]);
       user.google_id = googleId;
       user.avatar = avatar;
     }
@@ -95,18 +95,18 @@ export const googleAuthCallback = async (req: Request, res: Response) => {
 
     const { email, sub: googleId, name, picture: avatar } = payload;
     
-    const [rows]: any = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+    const { rows }: any = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     let user = rows[0];
 
     if (!user) {
       const id = randomUUID();
       await pool.query(
-        'INSERT INTO users (id, google_id, email, name, avatar) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO users (id, google_id, email, name, avatar) VALUES ($1, $2, $3, $4, $5)',
         [id, googleId, email, name, avatar]
       );
       user = { id, email, name, avatar };
     } else if (!user.google_id) {
-      await pool.query('UPDATE users SET google_id = ?, avatar = ? WHERE email = ?', [googleId, avatar, email]);
+      await pool.query('UPDATE users SET google_id = $1, avatar = $2 WHERE email = $3', [googleId, avatar, email]);
       user.google_id = googleId;
       user.avatar = avatar;
     }
@@ -126,14 +126,14 @@ export const register = async (req: Request, res: Response) => {
   if (!name || !email || !password) return res.status(400).json({ error: 'All fields are required' });
 
   try {
-    const [rows]: any = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+    const { rows }: any = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (rows.length > 0) return res.status(400).json({ error: 'Email already exists' });
 
     const id = randomUUID();
     const passwordHash = await bcrypt.hash(password, 10);
     
     await pool.query(
-      'INSERT INTO users (id, email, name, password_hash) VALUES (?, ?, ?, ?)',
+      'INSERT INTO users (id, email, name, password_hash) VALUES ($1, $2, $3, $4)',
       [id, email, name, passwordHash]
     );
 
@@ -152,7 +152,7 @@ export const login = async (req: Request, res: Response) => {
   if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
   try {
-    const [rows]: any = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+    const { rows }: any = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     const user = rows[0];
     
     if (!user || !user.password_hash) {
@@ -177,7 +177,7 @@ export const getSession = async (req: Request, res: Response) => {
   if (!authReq.user) return res.status(401).json({ error: 'Not authenticated' });
   
   try {
-    const [rows]: any = await pool.query('SELECT id, email, name, avatar FROM users WHERE id = ?', [authReq.user.id]);
+    const { rows }: any = await pool.query('SELECT id, email, name, avatar FROM users WHERE id = $1', [authReq.user.id]);
     if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
     
     res.json({ user: rows[0] });
