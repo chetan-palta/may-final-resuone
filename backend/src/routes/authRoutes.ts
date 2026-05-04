@@ -1,12 +1,12 @@
-import { Router } from 'express';
+import express from "express";
 import { googleLogin, googleAuthInitiate, googleAuthCallback, register, login, getSession, logout } from '../controllers/authController';
 import { authenticateToken } from '../utils/authMiddleware';
 
-const router = Router();
+const router = express.Router();
 
-router.post('/google', googleLogin);
-router.get('/google', googleAuthInitiate);
-router.get('/google/callback', googleAuthCallback);
+router.get("/google", googleAuthInitiate);
+router.get("/google/callback", googleAuthCallback);
+
 router.post('/register', register);
 router.post('/login', login);
 router.get('/session', authenticateToken, getSession);

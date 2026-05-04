@@ -14,7 +14,7 @@ import { initDb } from './config/db';
 import resumeRoutes from './routes/resumeRoutes';
 import aiRoutes from './routes/ai';
 import importRoutes from './routes/importRoutes';
-import authRoutes from './routes/auth';
+import authRoutes from './routes/authRoutes';
 import adminRoutes from './routes/adminRoutes';
 
 dotenv.config();
