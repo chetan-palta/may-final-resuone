@@ -16,6 +16,7 @@ import aiRoutes from './routes/ai';
 import importRoutes from './routes/importRoutes';
 import authRoutes from './routes/authRoutes';
 import adminRoutes from './routes/adminRoutes';
+import { googleAuthInitiate, googleAuthCallback } from './controllers/authController';
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.use(cors({
 
 app.use((req, res, next) => {
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+  res.setHeader("Content-Security-Policy", "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; img-src * data: blob:; media-src * data: blob:;");
   next();
 });
 
@@ -45,6 +47,8 @@ initDb().catch(e => console.error("DB Init failed but continuing:", e));
 app.use('/api/resumes', resumeRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/resume', importRoutes);
+app.get('/api/auth/google', googleAuthInitiate);
+app.get('/api/auth/google/callback', googleAuthCallback);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 
