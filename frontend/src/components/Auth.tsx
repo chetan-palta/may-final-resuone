@@ -15,7 +15,7 @@ export const Auth = () => {
   const [error, setError] = useState('');
 
   const handleGoogleLoginClick = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/google`;
+    window.location.href = `${API_URL}/api/auth/google`;
   };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
