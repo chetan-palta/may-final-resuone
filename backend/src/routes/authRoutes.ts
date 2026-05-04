@@ -1,5 +1,5 @@
 import express from "express";
-import { googleLogin, googleAuthInitiate, googleAuthCallback, register, login, getSession, logout } from '../controllers/authController';
+import { googleAuthInitiate, googleAuthCallback, register, login, getSession, logout } from '../controllers/authController';
 import { authenticateToken } from '../utils/authMiddleware';
 
 const router = express.Router();

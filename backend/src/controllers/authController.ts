@@ -17,50 +17,9 @@ const setSessionCookie = (res: Response, token: string) => {
   });
 };
 
-export const googleLogin = async (req: Request, res: Response) => {
-  const { credential } = req.body;
-  if (!credential) return res.status(400).json({ error: 'Missing credential' });
 
-  try {
-    const ticket = await client.verifyIdToken({
-      idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID
-    });
-    
-    const payload = ticket.getPayload();
-    if (!payload) return res.status(400).json({ error: 'Invalid Google token' });
 
-    const { email, sub: googleId, name, picture: avatar } = payload;
-    
-    // Check if user exists
-    const { rows }: any = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    let user = rows[0];
 
-    if (!user) {
-      // Create user
-      const { rows: inserted }: any = await pool.query(
-        'INSERT INTO users (google_id, email, name, avatar) VALUES ($1, $2, $3, $4) RETURNING id',
-        [googleId, email, name, avatar]
-      );
-      user = { id: inserted[0].id, email, name, avatar };
-    } else if (!user.google_id) {
-      // Link Google account to existing email user
-      await pool.query('UPDATE users SET google_id = $1, avatar = $2 WHERE email = $3', [googleId, avatar, email]);
-      user.google_id = googleId;
-      user.avatar = avatar;
-    }
-
-    const token = generateToken(user.id, user.email);
-    setSessionCookie(res, token);
-    
-    res.json({ user: { id: user.id, email: user.email, name: user.name, avatar: user.avatar } });
-  } catch (error) {
-    console.error('Google login error:', error);
-    res.status(500).json({ error: 'Google authentication failed' });
-  }
-};
-
-import axios from 'axios';
 
 export const googleAuthInitiate = (req: Request, res: Response) => {
   const redirect_uri = `${process.env.BASE_URL}/api/auth/google/callback`;
@@ -81,7 +40,7 @@ export const googleAuthCallback = async (req: Request, res: Response) => {
   
   try {
     // Exchange code for tokens
-    const tokenRes = await axios.post("https://oauth2.googleapis.com/token", {
+    const tokenRes: any = await axios.post("https://oauth2.googleapis.com/token", {
       code,
       client_id: process.env.GOOGLE_CLIENT_ID,
       client_secret: process.env.GOOGLE_CLIENT_SECRET,
@@ -90,7 +49,7 @@ export const googleAuthCallback = async (req: Request, res: Response) => {
     });
 
     // Get user info
-    const userRes = await axios.get("https://www.googleapis.com/oauth2/v2/userinfo", {
+    const userRes: any = await axios.get("https://www.googleapis.com/oauth2/v2/userinfo", {
       headers: { Authorization: `Bearer ${tokenRes.data.access_token}` }
     });
 
