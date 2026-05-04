@@ -1,14 +1,8 @@
 import { Request, Response } from 'express';
-import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import pool from '../config/db';
-
-const client = new OAuth2Client(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  `${process.env.BASE_URL}/api/auth/google/callback`
-);
+import axios from 'axios';
 
 const generateToken = (userId: number | string, email: string) => {
   return jwt.sign({ id: userId, email }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: '7d' });
@@ -66,12 +60,16 @@ export const googleLogin = async (req: Request, res: Response) => {
   }
 };
 
+import axios from 'axios';
+
 export const googleAuthInitiate = (req: Request, res: Response) => {
-  const url = client.generateAuthUrl({
-    access_type: 'offline',
-    scope: ['email', 'profile'],
-    prompt: 'consent'
-  });
+  const redirect_uri = `${process.env.BASE_URL}/api/auth/google/callback`;
+  const url = `https://accounts.google.com/o/oauth2/v2/auth?` +
+    `client_id=${process.env.GOOGLE_CLIENT_ID}` +
+    `&redirect_uri=${redirect_uri}` +
+    `&response_type=code` +
+    `&scope=profile email` +
+    `&access_type=offline`;
   res.redirect(url);
 };
 
@@ -82,17 +80,23 @@ export const googleAuthCallback = async (req: Request, res: Response) => {
   }
   
   try {
-    const { tokens } = await client.getToken(code);
-    const ticket = await client.verifyIdToken({
-      idToken: tokens.id_token!,
-      audience: process.env.GOOGLE_CLIENT_ID
+    // Exchange code for tokens
+    const tokenRes = await axios.post("https://oauth2.googleapis.com/token", {
+      code,
+      client_id: process.env.GOOGLE_CLIENT_ID,
+      client_secret: process.env.GOOGLE_CLIENT_SECRET,
+      redirect_uri: `${process.env.BASE_URL}/api/auth/google/callback`,
+      grant_type: "authorization_code"
     });
-    
-    const payload = ticket.getPayload();
-    if (!payload) throw new Error('Invalid token');
 
-    const { email, sub: googleId, name, picture: avatar } = payload;
+    // Get user info
+    const userRes = await axios.get("https://www.googleapis.com/oauth2/v2/userinfo", {
+      headers: { Authorization: `Bearer ${tokenRes.data.access_token}` }
+    });
+
+    const { email, id: googleId, name, picture: avatar } = userRes.data;
     
+    // Database logic
     const { rows }: any = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     let user = rows[0];
 

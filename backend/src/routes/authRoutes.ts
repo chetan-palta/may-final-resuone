@@ -9,4 +9,8 @@ router.post('/login', login);
 router.get('/session', authenticateToken, getSession);
 router.post('/logout', logout);
 
+// Google Auth
+router.get('/google', googleAuthInitiate);
+router.get('/google/callback', googleAuthCallback);
+
 export default router;

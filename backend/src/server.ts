@@ -16,7 +16,6 @@ import aiRoutes from './routes/ai';
 import importRoutes from './routes/importRoutes';
 import authRoutes from './routes/authRoutes';
 import adminRoutes from './routes/adminRoutes';
-import { googleAuthInitiate, googleAuthCallback } from './controllers/authController';
 
 dotenv.config();
 
@@ -47,8 +46,6 @@ initDb().catch(e => console.error("DB Init failed but continuing:", e));
 app.use('/api/resumes', resumeRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/resume', importRoutes);
-app.get('/api/auth/google', googleAuthInitiate);
-app.get('/api/auth/google/callback', googleAuthCallback);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 
