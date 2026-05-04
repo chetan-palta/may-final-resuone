@@ -129,11 +129,9 @@ export const getResumePdf = async (req: Request, res: Response) => {
     // Generate PDF buffer using server-side template
     const pdfBuffer = await generatePdf(resumeData as any);
 
-    res.set({
-      'Content-Type': 'application/pdf',
-      'Content-Length': pdfBuffer.length,
-      'Content-Disposition': `attachment; filename="resume_${id}.pdf"`
-    });
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Length", pdfBuffer.length.toString());
+    res.setHeader("Content-Disposition", `attachment; filename="resume_${id}.pdf"`);
     
     res.send(pdfBuffer);
   } catch (error) {
@@ -149,11 +147,9 @@ export const exportDirect = async (req: Request, res: Response) => {
     // Generate PDF buffer using server-side template
     const pdfBuffer = await generatePdf(data as any);
 
-    res.set({
-      'Content-Type': 'application/pdf',
-      'Content-Length': pdfBuffer.length,
-      'Content-Disposition': 'attachment; filename="resume.pdf"'
-    });
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Length", pdfBuffer.length.toString());
+    res.setHeader("Content-Disposition", 'attachment; filename="resume.pdf"');
     
     res.send(pdfBuffer);
   } catch (error) {
