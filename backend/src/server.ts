@@ -52,6 +52,8 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
+app.get('/', (req, res) => res.send('Backend running'));
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
