@@ -104,7 +104,7 @@ export const Home = () => {
               {/* User features removed */}
               <Button
                 onClick={handleCreateResume}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white hidden sm:flex transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
+                className="hidden sm:flex px-6 py-3 rounded-xl border border-transparent bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold shadow-md hover:scale-105 hover:shadow-lg transition-all duration-300"
               >
                 {user ? "Dashboard" : "Get Started"}
               </Button>
@@ -146,7 +146,7 @@ export const Home = () => {
                 {/* Mobile auth links removed */}
                 <Button
                   onClick={handleCreateResume}
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
+                  className="w-full px-6 py-3 rounded-xl border border-transparent bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold shadow-md hover:scale-105 hover:shadow-lg transition-all duration-300"
                 >
                   {user ? "Dashboard" : "Get Started"}
                 </Button>
@@ -177,7 +177,7 @@ export const Home = () => {
               <Button
                 onClick={handleCreateResume}
                 size="default"
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-5 h-auto transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
+                className="px-6 py-3 h-auto rounded-xl border border-transparent bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold shadow-md hover:scale-105 hover:shadow-lg transition-all duration-300"
               >
                 {user ? "Go to Dashboard" : "Create Resume"}
                 <ArrowRight className="w-4 h-4 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
@@ -187,7 +187,7 @@ export const Home = () => {
                 onClick={() => scrollToSection("features")}
                 size="default"
                 variant="outline"
-                className="px-6 py-5 h-auto border-2 transition-all duration-300 hover:scale-105 hover:shadow-md hover:border-indigo-600 dark:hover:border-indigo-400 active:scale-95"
+                className="px-6 py-5 h-auto border border-gray-300 hover:border-indigo-500 transition"
               >
                 View Features
               </Button>
@@ -259,7 +259,7 @@ export const Home = () => {
             ].map((feature, index) => (
               <div
                 key={index}
-                className="bg-muted/50 rounded-2xl p-6 border border-border hover:shadow-lg transition-shadow"
+                className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-xl p-4 hover:border-indigo-500 transition"
               >
                 <div className="w-12 h-12 rounded-full bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center mb-4">
                   <feature.icon className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
@@ -346,7 +346,7 @@ export const Home = () => {
             ].map((testimonial, index) => (
               <div
                 key={index}
-                className="bg-muted/50 rounded-2xl p-6 border border-border"
+                className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-xl p-4 hover:border-indigo-500 transition"
               >
                 <div className="flex items-center gap-1 mb-4">
                   {[...Array(5)].map((_, i) => (

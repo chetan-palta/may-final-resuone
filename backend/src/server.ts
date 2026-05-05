@@ -43,10 +43,10 @@ app.use(cookieParser());
 initDb().catch(e => console.error("DB Init failed but continuing:", e));
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/resumes', resumeRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/resume', importRoutes);
-app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.get('/health', (req, res) => {

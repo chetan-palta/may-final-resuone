@@ -1,5 +1,12 @@
-import express from "express";
-import { googleAuthInitiate, googleAuthCallback, register, login, getSession, logout } from '../controllers/authController';
+import express from 'express';
+import {
+	register,
+	login,
+	getSession,
+	logout,
+	googleAuthInitiate,
+	googleAuthCallback
+} from '../controllers/authController';
 import { authenticateToken } from '../utils/authMiddleware';
 
 const router = express.Router();
@@ -9,7 +16,7 @@ router.post('/login', login);
 router.get('/session', authenticateToken, getSession);
 router.post('/logout', logout);
 
-// Google Auth
+// Google OAuth routes
 router.get('/google', googleAuthInitiate);
 router.get('/google/callback', googleAuthCallback);
 
