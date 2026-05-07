@@ -13,6 +13,7 @@ const setSessionCookie = (res: Response, token: string) => {
     httpOnly: true,
     secure: true, // Always true for cross-site 'none'
     sameSite: 'none',
+    path: '/',
     maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
   });
 };
@@ -140,8 +141,9 @@ export const getSession = async (req: Request, res: Response) => {
   try {
     const { rows }: any = await pool.query('SELECT id, email, name, avatar FROM users WHERE id = $1', [authReq.user.id]);
     if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
-    
-    res.json({ user: rows[0] });
+
+    const userData = rows[0];
+    res.json({ user: userData });
   } catch (error) {
     res.status(500).json({ error: 'Failed to get session' });
   }
@@ -151,7 +153,8 @@ export const logout = (req: Request, res: Response) => {
   res.clearCookie('auth_token', {
     httpOnly: true,
     secure: true,
-    sameSite: 'none'
+    sameSite: 'none',
+    path: '/'
   });
   res.json({ message: 'Logged out successfully' });
 };

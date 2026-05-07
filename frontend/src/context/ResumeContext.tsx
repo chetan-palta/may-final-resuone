@@ -126,6 +126,7 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         const response = await fetch(`${API_URL}/api/ai/analyze`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify(data)
         });
         

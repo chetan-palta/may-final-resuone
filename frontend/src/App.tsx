@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useParams } from 'react-router-dom';
+import type { ReactNode } from 'react';
+import { BrowserRouter as Router, Routes, Route, useParams, Navigate } from 'react-router-dom';
 import { FileText, Download } from 'lucide-react';
 import { useResume } from './context/ResumeContext';
 import { LivePreview } from './components/LivePreview';
@@ -24,7 +25,7 @@ const MainApp = () => {
 
   useEffect(() => {
     if (user && !data.id && !autoLoaded) {
-      axios.get(`${API_URL}/api/resume/user`)
+      axios.get(`${API_URL}/api/resume/user`, { withCredentials: true })
         .then(res => {
           if (res.data && res.data.id) {
             setResumeData(res.data);
@@ -61,12 +62,13 @@ const MainApp = () => {
     try {
       if (data.id) {
         // Automatically save on export if logged in and managing a resume
-        await axios.post(`${API_URL}/api/resumes`, data);
+        await axios.post(`${API_URL}/api/resumes`, data, { withCredentials: true });
       }
       
       const response = await fetch(`${API_URL}/api/resumes/export-direct`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(data)
       });
       if (!response.ok) throw new Error('Failed to generate PDF');
@@ -102,7 +104,7 @@ const MainApp = () => {
       const payload = { ...data, resumeName: customName };
       const endpoint = data.id ? '/api/resume/update' : '/api/resume/save';
       const method = data.id ? axios.put : axios.post;
-      const response = await method(`${API_URL}${endpoint}`, payload);
+      const response = await method(`${API_URL}${endpoint}`, payload, { withCredentials: true });
       
       if (response.data.id) {
         setResumeData({ ...payload, id: response.data.id });
@@ -172,7 +174,10 @@ const RenderRoute = () => {
   useEffect(() => {
     const fetchResume = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/resumes/${id}`);
+        const res = await fetch(`${API_URL}/api/resumes/${id}`, {
+          credentials: 'include',
+        });
+
         if (!res.ok) throw new Error('Failed to fetch resume');
         const dbData = await res.json();
 
@@ -208,14 +213,28 @@ const RenderRoute = () => {
 };
 
 function App() {
+  const ProtectedRoute = ({ children }: { children: ReactNode }) => {
+    const { user, loading } = useAuth();
+
+    if (loading) {
+      return <div className="p-8 text-center text-gray-600">Loading session...</div>;
+    }
+
+    if (!user) {
+      return <Navigate to="/auth" replace />;
+    }
+
+    return <>{children}</>;
+  };
+
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/resume" element={<MainApp />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+        <Route path="/resume" element={<ProtectedRoute><MainApp /></ProtectedRoute>} />
         <Route path="/render/:id" element={<RenderRoute />} />
       </Routes>
     </Router>

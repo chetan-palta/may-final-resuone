@@ -26,7 +26,7 @@ const AccordionItemContext = React.createContext<{
 const AccordionItem = ({ value, children, className }: { value: string, children: React.ReactNode, className?: string }) => {
   return (
     <AccordionItemContext.Provider value={{ value }}>
-      <div className={`border-b ${className || ""}`}>{children}</div>
+      <div className={className || ""}>{children}</div>
     </AccordionItemContext.Provider>
   );
 };
@@ -40,7 +40,7 @@ const AccordionTrigger = ({ children, className }: { children: React.ReactNode, 
   return (
     <button 
       onClick={() => context.toggleItem(itemContext.value)}
-      className={`flex w-full py-4 text-left font-medium transition-all hover:underline ${className || ""}`}
+      className={`flex w-full items-center justify-between gap-4 rounded-2xl py-5 text-left font-medium transition-all duration-300 hover:scale-[1.01] ${className || ""}`}
     >
        {children}
     </button>
@@ -56,9 +56,15 @@ const AccordionContent = ({ children, className }: { children: React.ReactNode, 
   const isOpen = context.activeItem === itemContext.value;
 
   return (
-    <div className={`overflow-hidden text-sm transition-all pb-4 ${isOpen ? "block" : "hidden"} ${className || ""}`}>
-      {children}
+  return (
+    <div
+      className={`grid overflow-hidden text-sm transition-all duration-300 ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"} ${className || ""}`}
+    >
+      <div className="overflow-hidden pb-5">
+        {children}
+      </div>
     </div>
+  );
   );
 };
 

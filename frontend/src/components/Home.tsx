@@ -15,9 +15,12 @@ import {
   Zap,
   Star,
   Github,
-
   Linkedin,
-  Mail
+  Mail,
+  BadgeCheck,
+  CircleDashed,
+  FileBarChart,
+  Clock3
 } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { useAuth } from "../context/AuthContext";
@@ -27,6 +30,106 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "./ui/accordion";
+
+const featureCards = [
+  {
+    icon: Shield,
+    title: "ATS-optimized formatting",
+    description: "Structure your resume with clean hierarchy, calm spacing, and parser-friendly layout rules."
+  },
+  {
+    icon: Layout,
+    title: "Live resume preview",
+    description: "Watch the final layout update in real time while you refine content and structure."
+  },
+  {
+    icon: Sparkles,
+    title: "Real-time editing",
+    description: "Make changes once and keep the resume preview, validator, and export flow in sync."
+  },
+  {
+    icon: Download,
+    title: "One-click PDF export",
+    description: "Produce a polished PDF without fighting spacing, borders, or broken typography."
+  },
+  {
+    icon: Zap,
+    title: "Smart validation",
+    description: "Spot weak structure and missing details before your resume reaches a recruiter."
+  },
+  {
+    icon: FileText,
+    title: "Resume standardization",
+    description: "Keep one premium resume version that works across placements, internships, and applications."
+  }
+];
+
+const workflow = [
+  {
+    icon: User,
+    title: "Sign in",
+    description: "Open your workspace and keep your resume saved in one place."
+  },
+  {
+    icon: FileText,
+    title: "Fill information",
+    description: "Add your details, achievements, projects, and experience in a calm, guided flow."
+  },
+  {
+    icon: Layout,
+    title: "Live resume preview",
+    description: "See how the resume reads before you export it or share it."
+  },
+  {
+    icon: Download,
+    title: "Download as PDF",
+    description: "Export a clean final resume ready for campus placements and recruiter screening."
+  }
+];
+
+const testimonials = [
+  {
+    name: "Harpreet Singh",
+    role: "B.Tech CSE, GNDEC",
+    quote: "ResuOne helped me standardize my resume before placements. The ATS score and live preview made the whole edit cycle much cleaner.",
+    avatar: "HS"
+  },
+  {
+    name: "Jasleen Kaur",
+    role: "MCA, GNDEC",
+    quote: "I used it for internship applications and the exported PDF stayed polished every time. The interface feels premium and focused.",
+    avatar: "JK"
+  },
+  {
+    name: "Gurkirat Singh",
+    role: "BCA, GNDEC",
+    quote: "It made one strong resume version easy to maintain across multiple drives. The layout feels built for real recruiter screening.",
+    avatar: "GS"
+  }
+];
+
+const faqItems = [
+  {
+    question: "Is ResuOne built for one resume only?",
+    answer: "Yes. It is designed around a single polished resume so your content stays consistent and easy to maintain."
+  },
+  {
+    question: "Is the resume ATS-friendly?",
+    answer: "Yes. The layout uses clean hierarchy, readable typography, and a structure that is easy for applicant tracking systems to process."
+  },
+  {
+    question: "Can I download the resume as PDF?",
+    answer: "Yes. You can export a final PDF with stable spacing, clean formatting, and preserved links."
+  },
+  {
+    question: "Do I need an account to start?",
+    answer: "You can begin quickly, and signing in lets you keep your resume saved for later updates."
+  },
+  {
+    question: "Can I use it for placements and internships?",
+    answer: "Absolutely. It is tuned for student resumes, campus placements, internships, and recruiter screening."
+  }
+];
 
 export const Home = () => {
   const navigate = useNavigate();
@@ -60,431 +163,395 @@ export const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* LandingHeader */}
+    <div className="min-h-screen overflow-hidden bg-slate-950 text-slate-100">
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -top-32 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-indigo-600/20 blur-3xl" />
+        <div className="absolute right-[-5rem] top-40 h-80 w-80 rounded-full bg-violet-500/15 blur-3xl" />
+        <div className="absolute bottom-0 left-0 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl" />
+      </div>
+
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
-          ? "bg-background/95 backdrop-blur-md border-b border-border shadow-sm"
-          : "bg-transparent"
-          }`}
+        className={`sticky top-0 z-50 border-b border-white/10 transition-all duration-300 ${scrolled ? "bg-slate-950/72 shadow-[0_8px_40px_rgba(15,23,42,0.35)] backdrop-blur-xl" : "bg-slate-950/45 backdrop-blur-xl"}`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center">
-                <FileText className="w-5 h-5 text-white" />
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-18 items-center justify-between py-4">
+            <Link to="/" className="flex items-center gap-3 rounded-2xl px-2 py-1 transition-all duration-300 hover:bg-white/5">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-blue-500 shadow-[0_10px_30px_rgba(99,102,241,0.35)]">
+                <FileText className="h-5 w-5 text-white" />
               </div>
-              <span className="text-2xl font-extrabold text-foreground">ResuOne</span>
+              <div>
+                <span className="block text-lg font-semibold tracking-tight text-white">ResuOne</span>
+                <span className="block text-xs text-slate-400">ATS resume standardization</span>
+              </div>
             </Link>
 
-            {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center gap-8">
-              <button
-                onClick={() => scrollToSection("features")}
-                className="text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium"
-              >
-                Features
-              </button>
-              <button
-                onClick={() => scrollToSection("how-it-works")}
-                className="text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium"
-              >
-                How it Works
-              </button>
-              <button
-                onClick={() => scrollToSection("testimonials")}
-                className="text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium"
-              >
-                Testimonials
-              </button>
+            <nav className="hidden items-center gap-1 md:flex">
+              {[["Features", "features"], ["Process", "how-it-works"], ["Stories", "testimonials"], ["FAQ", "faq"]].map(([label, target]) => (
+                <button
+                  key={label}
+                  onClick={() => scrollToSection(target)}
+                  className="rounded-full px-4 py-2 text-sm font-medium text-slate-300 transition-all duration-300 hover:bg-white/6 hover:text-white"
+                >
+                  {label}
+                </button>
+              ))}
             </nav>
 
             <div className="flex items-center gap-3">
               <ThemeToggle />
-              {/* User features removed */}
               <Button
                 onClick={handleCreateResume}
-                className="hidden sm:flex px-6 py-3 rounded-xl border border-transparent bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold shadow-md hover:scale-105 hover:shadow-lg transition-all duration-300"
+                className="hidden sm:inline-flex group rounded-full border border-white/10 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-950/20 hover:border-white/20 hover:bg-white/15 hover:shadow-[0_20px_45px_rgba(79,70,229,0.22)]"
               >
-                {user ? "Dashboard" : "Get Started"}
+                {user ? "Dashboard" : "Start your resume"}
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
-
-              {/* Mobile Menu Button */}
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden"
+                className="md:hidden rounded-full border border-white/10 bg-white/5 text-white hover:bg-white/10"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
-                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </Button>
             </div>
           </div>
 
-          {/* Mobile Menu */}
           {mobileMenuOpen && (
-            <div className="md:hidden py-4 border-t border-border animate-in slide-in-from-top">
-              <div className="flex flex-col gap-4">
-                <button
-                  onClick={() => scrollToSection("features")}
-                  className="text-left text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium"
-                >
-                  Features
-                </button>
-                <button
-                  onClick={() => scrollToSection("how-it-works")}
-                  className="text-left text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium"
-                >
-                  How it Works
-                </button>
-                <button
-                  onClick={() => scrollToSection("testimonials")}
-                  className="text-left text-muted-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium"
-                >
-                  Testimonials
-                </button>
-                {/* Mobile auth links removed */}
-                <Button
-                  onClick={handleCreateResume}
-                  className="w-full px-6 py-3 rounded-xl border border-transparent bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold shadow-md hover:scale-105 hover:shadow-lg transition-all duration-300"
-                >
-                  {user ? "Dashboard" : "Get Started"}
-                </Button>
+            <div className="md:hidden pb-5 animate-fade-in-up">
+              <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-4 shadow-2xl shadow-slate-950/40 backdrop-blur-xl">
+                <div className="flex flex-col gap-2">
+                  {[["Features", "features"], ["Process", "how-it-works"], ["Stories", "testimonials"], ["FAQ", "faq"]].map(([label, target]) => (
+                    <button
+                      key={label}
+                      onClick={() => scrollToSection(target)}
+                      className="rounded-2xl px-4 py-3 text-left text-sm font-medium text-slate-300 transition-all duration-300 hover:bg-white/6 hover:text-white"
+                    >
+                      {label}
+                    </button>
+                  ))}
+                  <Button
+                    onClick={handleCreateResume}
+                    className="mt-2 inline-flex w-full rounded-full bg-gradient-to-r from-indigo-500 via-violet-500 to-blue-500 px-5 py-3 font-semibold text-white shadow-[0_20px_50px_rgba(79,70,229,0.30)] hover:scale-[1.01]"
+                  >
+                    {user ? "Open dashboard" : "Start your resume"}
+                  </Button>
+                </div>
               </div>
             </div>
           )}
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-24 overflow-hidden bg-gradient-to-b from-indigo-50/50 dark:from-indigo-950/20 to-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-foreground mb-6">
-              Build{" "}
-              <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
-                ATS-ready
-              </span>
-              {" "}resume instantly
-            </h1>
-
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-              Create professional, ATS-friendly resumes with our intuitive builder.
-              Choose from stunning templates, customize every detail, and export instantly.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              <Button
-                onClick={handleCreateResume}
-                size="default"
-                className="px-6 py-3 h-auto rounded-xl border border-transparent bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold shadow-md hover:scale-105 hover:shadow-lg transition-all duration-300"
-              >
-                {user ? "Go to Dashboard" : "Create Resume"}
-                <ArrowRight className="w-4 h-4 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
-              </Button>
-              {/* Sign‑up button removed */}
-              <Button
-                onClick={() => scrollToSection("features")}
-                size="default"
-                variant="outline"
-                className="px-6 py-5 h-auto border border-gray-300 hover:border-indigo-500 transition"
-              >
-                View Features
-              </Button>
-            </div>
-
-            {/* Trust Indicators */}
-            <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                <span>ATS-Friendly</span>
+      <main>
+        <section className="relative overflow-hidden px-4 pb-16 pt-16 sm:px-6 lg:px-8 lg:pb-24 lg:pt-24">
+          <div className="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
+            <div className="relative z-10 max-w-2xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/15 bg-cyan-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200 shadow-[0_0_0_1px_rgba(34,211,238,0.12)]">
+                <CircleDashed className="h-4 w-4 animate-pulse" />
+                ATS ready resume studio
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                <span>Professional Templates</span>
+              <h1 className="mt-6 text-5xl font-black tracking-tight text-white sm:text-6xl lg:text-7xl lg:leading-[0.95]">
+                Build a resume that feels
+                <span className="block bg-gradient-to-r from-cyan-300 via-sky-300 to-violet-300 bg-clip-text text-transparent">
+                  polished, modern, and recruiter-ready.
+                </span>
+              </h1>
+              <p className="mt-6 max-w-xl text-lg leading-8 text-slate-300 sm:text-xl">
+                Create your ATS-ready resume with a premium editor, live preview, and clean export flow built for campus placements and job applications.
+              </p>
+
+              <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+                <Button
+                  onClick={handleCreateResume}
+                  className="group inline-flex rounded-full bg-gradient-to-r from-indigo-500 via-violet-500 to-blue-500 px-7 py-4 text-base font-semibold text-white shadow-[0_20px_60px_rgba(79,70,229,0.34)] hover:scale-[1.02] hover:shadow-[0_24px_70px_rgba(79,70,229,0.42)]"
+                >
+                  {user ? "Go to dashboard" : "Create your resume"}
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                </Button>
+                <Button
+                  onClick={() => scrollToSection("features")}
+                  variant="outline"
+                  className="rounded-full border border-white/10 bg-white/5 px-7 py-4 text-base font-semibold text-white backdrop-blur-md hover:border-white/20 hover:bg-white/10 hover:text-white"
+                >
+                  Explore features
+                </Button>
               </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                <span>AI Suggestions</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-24 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground mb-4">
-              Everything You Need to Land Your Dream Job
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Powerful features designed to make resume building effortless and effective.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Shield,
-                title: "ATS-Optimized Templates",
-                description: "All templates are designed to pass applicant tracking systems with clean formatting and semantic structure."
-              },
-              {
-                icon: Sparkles,
-                title: "AI-Powered Suggestions",
-                description: "Get intelligent recommendations to improve your resume content and increase your chances of getting noticed."
-              },
-              {
-                icon: Zap,
-                title: "Instant Feedback",
-                description: "Receive real-time suggestions and ATS scores as you build your resume to optimize it for success."
-              },
-              {
-                icon: Download,
-                title: "Multiple Export Formats",
-                description: "Download your resume as PDF or DOCX with all formatting and links preserved perfectly."
-              },
-              {
-                icon: Layout,
-                title: "Keyword Optimization",
-                description: "Our system helps you identify and include relevant keywords that employers are looking for."
-              },
-              {
-                icon: FileText,
-                title: "Cover Letter Builder",
-                description: "Create matching cover letters that complement your resume and increase your application success rate."
-              }
-            ].map((feature, index) => (
-              <div
-                key={index}
-                className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-xl p-4 hover:border-indigo-500 transition"
-              >
-                <div className="w-12 h-12 rounded-full bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center mb-4">
-                  <feature.icon className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-                </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
-                <p className="text-muted-foreground">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section id="how-it-works" className="py-24 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground mb-4">
-              Create Your Resume in 4 Simple Steps
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Our streamlined process makes resume building quick and easy.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative">
-            {/* Connecting Line (Desktop) */}
-            <div className="hidden lg:block absolute top-12 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 via-violet-500 to-purple-500" />
-
-            {[
-              { step: "1", title: "Create Profile", color: "bg-blue-500", icon: User },
-              { step: "2", title: "Choose Template", color: "bg-indigo-500", icon: Layout },
-              { step: "3", title: "Customize & Optimize", color: "bg-violet-500", icon: Sparkles },
-              { step: "4", title: "Download & Apply", color: "bg-purple-500", icon: Download }
-            ].map((item, index) => (
-              <div key={index} className="text-center relative">
-                <div className={`w-24 h-24 ${item.color} rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg hover:scale-110 transition-transform relative z-10`}>
-                  <item.icon className="w-12 h-12 text-white" />
-                </div>
-                <div className="text-2xl font-bold text-foreground mb-2">{item.title}</div>
-                <p className="text-muted-foreground">
-                  {index === 0 && "Sign up and enter your basic information"}
-                  {index === 1 && "Select from our professional ATS-friendly templates"}
-                  {index === 2 && "Customize content, add sections, and get AI suggestions"}
-                  {index === 3 && "Export to PDF or DOCX and start applying"}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section id="testimonials" className="py-24 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground mb-4">
-              Loved by Job Seekers Everywhere
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              See what our users are saying about their success with ResuOne.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                name: "Sarah Chen",
-                role: "Software Engineer",
-                quote: "Landed my dream job at Google thanks to ResuOne! The ATS optimization feature made all the difference.",
-                avatar: "SC"
-              },
-              {
-                name: "Michael Rodriguez",
-                role: "Marketing Manager",
-                quote: "The templates are beautiful and professional. I got 3 interview calls within a week of using my new resume.",
-                avatar: "MR"
-              },
-              {
-                name: "Emily Johnson",
-                role: "Product Designer",
-                quote: "Best resume builder I've used. The AI suggestions helped me highlight my strengths perfectly.",
-                avatar: "EJ"
-              }
-            ].map((testimonial, index) => (
-              <div
-                key={index}
-                className="backdrop-blur-lg bg-white/10 border border-white/20 rounded-xl p-4 hover:border-indigo-500 transition"
-              >
-                <div className="flex items-center gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                  ))}
-                </div>
-                <p className="text-muted-foreground mb-6 italic">"{testimonial.quote}"</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-indigo-600 flex items-center justify-center text-white font-semibold">
-                    {testimonial.avatar}
+              <div className="mt-8 flex flex-wrap gap-3 text-sm text-slate-300">
+                {["ATS-safe structure", "Live preview", "Smooth PDF export"].map((item) => (
+                  <div key={item} className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-md">
+                    <CheckCircle className="h-4 w-4 text-emerald-400" />
+                    <span>{item}</span>
                   </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-0 -z-10 rounded-full bg-indigo-500/20 blur-3xl" />
+              <div className="relative mx-auto max-w-xl rounded-[2rem] border border-white/10 bg-slate-900/70 p-5 shadow-[0_30px_80px_rgba(15,23,42,0.45)] backdrop-blur-2xl animate-float">
+                <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
                   <div>
-                    <div className="font-semibold text-foreground">{testimonial.name}</div>
-                    <div className="text-sm text-muted-foreground">{testimonial.role}</div>
+                    <p className="text-xs uppercase tracking-[0.24em] text-slate-400">ATS snapshot</p>
+                    <h3 className="mt-1 text-lg font-semibold text-white">Your resume at a glance</h3>
+                  </div>
+                  <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-300">Live</span>
+                </div>
+
+                <div className="mt-5 grid gap-4 sm:grid-cols-[1fr_0.9fr]">
+                  <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-white/10 to-white/5 p-5">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="text-sm text-slate-400">ATS score</p>
+                        <p className="mt-2 text-5xl font-black tracking-tight text-white">94</p>
+                      </div>
+                      <BadgeCheck className="h-8 w-8 text-cyan-300" />
+                    </div>
+                    <div className="mt-4 space-y-3">
+                      {[["Formatting", "92%"], ["Keywords", "89%"], ["Clarity", "96%"]].map(([label, value]) => (
+                        <div key={label}>
+                          <div className="mb-1 flex items-center justify-between text-xs text-slate-400">
+                            <span>{label}</span>
+                            <span>{value}</span>
+                          </div>
+                          <div className="h-2 overflow-hidden rounded-full bg-white/8">
+                            <div className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-sky-400 to-indigo-400" style={{ width: value }} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-500/15 text-indigo-200">
+                          <FileBarChart className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-white">Resume standardization</p>
+                          <p className="text-sm text-slate-400">One clean version across every application.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="rounded-3xl border border-white/10 bg-white/5 p-4 animate-float-delayed">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-500/15 text-violet-200">
+                          <Clock3 className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-white">Real-time edits</p>
+                          <p className="text-sm text-slate-400">Update content and preview changes instantly.</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* FAQ */}
-      <section id="faq" className="py-24 bg-muted/30">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground mb-4">
-              Frequently Asked Questions
-            </h2>
-            <p className="text-xl text-muted-foreground">
-              Everything you need to know about ResuOne.
-            </p>
-          </div>
-
-          <Accordion type="single" collapsible className="w-full">
-            {[
-              {
-                question: "Is ResuOne really free?",
-                answer: "Yes! ResuOne is completely free to use. You can create unlimited resumes, export them in multiple formats, and access all features without any cost."
-              },
-              {
-                question: "Are the resumes ATS-friendly?",
-                answer: "Absolutely! All our templates are designed to pass applicant tracking systems. We use clean formatting, semantic structure, and proper keyword placement to ensure your resume gets through."
-              },
-              {
-                question: "Can I download my resume as PDF?",
-                answer: "Yes, you can export your resume in both PDF and DOCX formats. All formatting, links, and styling are preserved perfectly in the exported files."
-              },
-              {
-                question: "Do I need to sign up to use ResuOne?",
-                answer: "You can start building your resume without signing up, but signing up allows you to save your resumes, access them from anywhere, and create multiple versions."
-              },
-              {
-                question: "How many resumes can I create?",
-                answer: "With a free account, you can save up to 5 resumes. You can create and export unlimited resumes, but only 5 can be saved to your account at a time."
-              }
-            ].map((item, index) => (
-              <AccordionItem key={index} value={`item-${index}`} className="border-b border-border">
-                <AccordionTrigger className="text-left text-foreground font-semibold hover:no-underline">
-                  {item.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
-                  {item.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-slate-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-            {/* Logo & Description */}
-            <div className="md:col-span-2">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-2xl font-extrabold">ResuOne</span>
+        <section id="features" className="px-4 py-20 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="mx-auto max-w-2xl text-center">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-slate-300 backdrop-blur-md">
+                Premium features
               </div>
-              <p className="text-slate-400 max-w-md">
-                Build professional resumes effortlessly. Free forever with no hidden costs.
+              <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl">
+                Everything you need to ship one strong resume
+              </h2>
+              <p className="mt-4 text-lg leading-8 text-slate-300">
+                Each feature is tuned for an ATS-friendly, student-first workflow that feels modern and calm.
               </p>
             </div>
 
-            {/* Product Links */}
+            <div className="mt-14 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {featureCards.map((feature, index) => (
+                <div
+                  key={feature.title}
+                  className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_50px_rgba(15,23,42,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-indigo-400/25 hover:bg-white/8 hover:shadow-[0_25px_70px_rgba(79,70,229,0.18)]"
+                  style={{ animationDelay: `${index * 90}ms` }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 via-indigo-500/0 to-violet-500/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <div className="relative">
+                    <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500/20 via-violet-500/20 to-blue-500/20 text-indigo-200 ring-1 ring-white/10 transition-transform duration-300 group-hover:scale-105">
+                      <feature.icon className="h-6 w-6" />
+                    </div>
+                    <h3 className="text-xl font-semibold tracking-tight text-white">{feature.title}</h3>
+                    <p className="mt-3 text-sm leading-7 text-slate-300">{feature.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="how-it-works" className="px-4 py-20 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="mx-auto max-w-2xl text-center">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-slate-300 backdrop-blur-md">
+                Simple workflow
+              </div>
+              <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl">
+                Four steps, one polished resume
+              </h2>
+              <p className="mt-4 text-lg leading-8 text-slate-300">
+                Build fast, refine calmly, and export with confidence.
+              </p>
+            </div>
+
+            <div className="relative mt-14 grid gap-5 lg:grid-cols-4">
+              <div className="absolute left-6 right-6 top-10 hidden h-px bg-gradient-to-r from-indigo-500 via-violet-500 to-blue-500 lg:block" />
+              {workflow.map((item, index) => (
+                <div key={item.title} className="group relative rounded-3xl border border-white/10 bg-slate-900/65 p-6 text-center shadow-[0_20px_50px_rgba(15,23,42,0.2)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-[0_24px_70px_rgba(79,70,229,0.16)]">
+                  <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-[1.75rem] bg-gradient-to-br from-indigo-500 via-violet-500 to-blue-500 shadow-[0_16px_40px_rgba(79,70,229,0.35)] transition-transform duration-300 group-hover:scale-105">
+                    <item.icon className="h-9 w-9 text-white" />
+                  </div>
+                  <div className="mb-2 inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-300">
+                    Step {index + 1}
+                  </div>
+                  <h3 className="text-xl font-semibold tracking-tight text-white">{item.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-slate-300">{item.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="testimonials" className="px-4 py-20 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="mx-auto max-w-2xl text-center">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-slate-300 backdrop-blur-md">
+                Student stories
+              </div>
+              <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl">
+                Trusted by students preparing for placements
+              </h2>
+              <p className="mt-4 text-lg leading-8 text-slate-300">
+                Built for campus applications, internship screening, and cleaner recruiter review.
+              </p>
+            </div>
+
+            <div className="mt-14 grid gap-5 md:grid-cols-3">
+              {testimonials.map((testimonial) => (
+                <div key={testimonial.name} className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_50px_rgba(15,23,42,0.18)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-indigo-400/25 hover:shadow-[0_30px_80px_rgba(79,70,229,0.18)]">
+                  <div className="flex items-center gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
+                  <p className="mt-5 text-sm leading-7 text-slate-300">“{testimonial.quote}”</p>
+                  <div className="mt-6 flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-blue-500 text-sm font-semibold text-white shadow-[0_12px_30px_rgba(79,70,229,0.30)]">
+                      {testimonial.avatar}
+                    </div>
+                    <div>
+                      <div className="font-semibold text-white">{testimonial.name}</div>
+                      <div className="text-sm text-slate-400">{testimonial.role}</div>
+                    </div>
+                  </div>
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="faq" className="px-4 py-20 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-4xl">
+            <div className="mx-auto max-w-2xl text-center">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-slate-300 backdrop-blur-md">
+                FAQ
+              </div>
+              <h2 className="mt-5 text-4xl font-black tracking-tight text-white sm:text-5xl">
+                Clean answers, no clutter
+              </h2>
+              <p className="mt-4 text-lg leading-8 text-slate-300">
+                A premium accordion that stays smooth in dark mode and keeps the page visually calm.
+              </p>
+            </div>
+
+            <div className="mt-12 space-y-4">
+              <Accordion type="single" collapsible className="space-y-4">
+                {faqItems.map((item, index) => (
+                  <AccordionItem key={index} value={`item-${index}`} className="overflow-hidden rounded-3xl border border-white/10 bg-slate-900/65 px-6 shadow-[0_18px_45px_rgba(15,23,42,0.2)] backdrop-blur-xl transition-all duration-300 hover:border-white/20">
+                    <AccordionTrigger className="text-left text-base font-semibold text-white hover:no-underline">
+                      {item.question}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-sm leading-7 text-slate-300">
+                      {item.answer}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="relative border-t border-white/10 bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.18),_transparent_38%),linear-gradient(180deg,#020617_0%,#0f172a_100%)] px-4 py-16 text-slate-300 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid gap-10 lg:grid-cols-[1.3fr_0.7fr_0.7fr]">
             <div>
-              <h3 className="font-semibold mb-4">Product</h3>
-              <ul className="space-y-2 text-slate-400">
+              <Link to="/" className="inline-flex items-center gap-3 rounded-2xl px-2 py-1 transition-all duration-300 hover:bg-white/5">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-blue-500 shadow-[0_12px_30px_rgba(79,70,229,0.35)]">
+                  <FileText className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <span className="block text-xl font-semibold tracking-tight text-white">ResuOne</span>
+                  <span className="block text-sm text-slate-400">Premium ATS resume platform</span>
+                </div>
+              </Link>
+              <p className="mt-5 max-w-xl text-sm leading-7 text-slate-400">
+                A focused resume standardization experience for students who want one elegant resume that works across placements, internships, and recruiter screening.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-200">Product</h3>
+              <ul className="mt-5 space-y-3 text-sm text-slate-400">
+                {[["Features", "features"], ["Workflow", "how-it-works"], ["FAQ", "faq"]].map(([label, target]) => (
+                  <li key={label}>
+                    <button onClick={() => scrollToSection(target)} className="group relative inline-flex items-center gap-2 transition-colors duration-300 hover:text-white">
+                      <span>{label}</span>
+                      <span className="h-px w-6 bg-white/25 transition-all duration-300 group-hover:w-10 group-hover:bg-white/80" />
+                    </button>
+                  </li>
+                ))}
                 <li>
-                  <button onClick={() => scrollToSection("features")} className="hover:text-white transition-colors">
-                    Features
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => scrollToSection("how-it-works")} className="hover:text-white transition-colors">
-                    How it Works
-                  </button>
-                </li>
-                <li>
-                  <Link to="/resume" className="hover:text-white transition-colors">
-                    Build Resume
+                  <Link to="/resume" className="group inline-flex items-center gap-2 transition-colors duration-300 hover:text-white">
+                    <span>Build resume</span>
+                    <span className="h-px w-6 bg-white/25 transition-all duration-300 group-hover:w-10 group-hover:bg-white/80" />
                   </Link>
                 </li>
               </ul>
             </div>
-          </div>
 
-          {/* Social Links & Copyright */}
-          <div className="border-t border-slate-800 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-slate-400 text-sm">
-              © {new Date().getFullYear()} ResuOne. All rights reserved.
-            </p>
-            <div className="flex items-center gap-4">
-              <a
-                href="https://github.com/chetan-palta"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-slate-400 hover:text-white transition-colors"
-              >
-                <Github className="w-5 h-5" />
-              </a>
-              <a
-                href="https://www.linkedin.com/in/chetan-palta"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-slate-400 hover:text-white transition-colors"
-              >
-                <Linkedin className="w-5 h-5" />
-              </a>
-              <a
-                href="mailto:itzchetan0007@gmail.com"
-                className="text-slate-400 hover:text-white transition-colors"
-              >
-                <Mail className="w-5 h-5" />
-              </a>
+            <div>
+              <h3 className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-200">Connect</h3>
+              <div className="mt-5 flex items-center gap-3">
+                {[
+                  { href: "https://github.com/chetan-palta", icon: Github, label: "GitHub" },
+                  { href: "https://www.linkedin.com/in/chetan-palta", icon: Linkedin, label: "LinkedIn" },
+                  { href: "mailto:itzchetan0007@gmail.com", icon: Mail, label: "Email" }
+                ].map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    target={item.label === "Email" ? undefined : "_blank"}
+                    rel={item.label === "Email" ? undefined : "noopener noreferrer"}
+                    className="group flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-slate-300 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-white/10 hover:text-white hover:shadow-[0_18px_35px_rgba(79,70,229,0.18)]"
+                  >
+                    <item.icon className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
+                  </a>
+                ))}
+              </div>
+              <p className="mt-5 text-sm text-slate-400">
+                © {new Date().getFullYear()} ResuOne. Built for polished placements.
+              </p>
             </div>
           </div>
         </div>

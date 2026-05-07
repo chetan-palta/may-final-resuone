@@ -17,6 +17,7 @@ interface AuthContextType {
   loading: boolean;
   login: (userData: User) => void;
   logout: () => void;
+  refreshSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -24,19 +25,30 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   login: () => {},
   logout: () => {},
+  refreshSession: async () => {},
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const refreshSession = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/auth/session`, {
+        withCredentials: true,
+      });
+      setUser(response.data.user);
+      console.log('Session:', response.data.user);
+    } catch {
+      setUser(null);
+      console.log('Session:', null);
+    }
+  };
+
   useEffect(() => {
     const fetchSession = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/auth/session`);
-        setUser(response.data.user);
-      } catch (error) {
-        setUser(null);
+        await refreshSession();
       } finally {
         setLoading(false);
       }
@@ -50,13 +62,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     try {
-      await axios.post(`${API_URL}/api/auth/logout`);
-    } catch (e) {}
+      await axios.post(`${API_URL}/api/auth/logout`, null, {
+        withCredentials: true,
+      });
+    } catch {}
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, refreshSession }}>
       {children}
     </AuthContext.Provider>
   );

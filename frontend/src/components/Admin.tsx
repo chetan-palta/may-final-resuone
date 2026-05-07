@@ -23,7 +23,7 @@ export const Admin = () => {
 
   const fetchAdminResumes = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/admin/resumes`);
+      const res = await axios.get(`${API_URL}/api/admin/resumes`, { withCredentials: true });
       setResumes(res.data.resumes || []);
       setFiltered(res.data.resumes || []);
     } catch (err) {

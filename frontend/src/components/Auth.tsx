@@ -7,7 +7,7 @@ import { API_URL } from '../config';
 
 export const Auth = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, refreshSession } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,7 +15,7 @@ export const Auth = () => {
   const [error, setError] = useState('');
 
   const handleGoogleLoginClick = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/google`;
+    window.location.href = `${API_URL}/api/auth/google`;
   };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
@@ -24,8 +24,11 @@ export const Auth = () => {
     try {
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
       const payload = isLogin ? { email, password } : { name, email, password };
-      const res = await axios.post(`${API_URL}${endpoint}`, payload);
+      const res = await axios.post(`${API_URL}${endpoint}`, payload, {
+        withCredentials: true,
+      });
       login(res.data.user);
+      await refreshSession();
       if (res.data.user.email === 'admin@resuone.com') {
         navigate('/admin');
       } else {
