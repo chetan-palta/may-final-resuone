@@ -1,31 +1,28 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Button } from "./ui/button";
 import {
-  FileText,
   ArrowRight,
+  ArrowUpRight,
   CheckCircle,
-  User,
-  Menu,
-  X,
-  Sparkles,
+  ChevronRight,
   Download,
-  Layout,
-  Shield,
-  Zap,
-  Star,
+  Eye,
+  FileText,
   Github,
+  Lightbulb,
   Linkedin,
   Mail,
-  Lightbulb,
-  Eye,
+  Menu,
+  Shield,
+  Sparkles,
+  Star,
+  User,
   Workflow,
-  Check,
-  ChevronRight,
-  ArrowUpRight
+  X,
+  Zap
 } from "lucide-react";
-import { ThemeToggle } from "./ThemeToggle";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { ThemeToggle } from "./ThemeToggle";
 import {
   Accordion,
   AccordionContent,
