@@ -43,12 +43,12 @@ const SkillAutocomplete = ({ categoryName, currentItems, onSelect }: { categoryN
   };
 
   return (
-    <div className="mt-2 rounded-2xl border border-white/10 bg-white/5 p-3 backdrop-blur-xl">
-      <div className="mb-2 flex items-center gap-1 text-xs font-semibold text-cyan-200">
+    <div className="mt-2 p-3 bg-blue-50/50 rounded-lg border border-blue-100">
+      <div className="text-xs font-semibold text-blue-800 flex items-center gap-1 mb-2">
         <Sparkles size={12} /> AI Suggestions
       </div>
       {loading ? (
-        <div className="text-xs text-slate-400">Loading suggestions...</div>
+        <div className="text-xs text-blue-600">Loading suggestions...</div>
       ) : (
         <div className="flex flex-wrap gap-2">
           {suggestions.map(s => (
@@ -111,11 +111,11 @@ export const ResumeForm = () => {
 
       <Section title="Personal Details" defaultOpen={true}>
         <div className="input-group">
-          <label className="input-label flex items-center gap-2 rounded-t-md border-b border-white/10 bg-white/5 p-2 text-slate-200 mb-0">
+          <label className="input-label bg-blue-50 text-blue-800 p-2 rounded-t-md mb-0 border-b border-blue-100 flex items-center gap-2">
             <Target size={16} /> Target Job Role (Powers AI Suggestions)
           </label>
           <input 
-            className="input-field rounded-t-none border-t-0 bg-white/5" 
+            className="input-field rounded-t-none border-t-0 bg-blue-50/30" 
             name="targetRole" 
             value={data.personalDetails.targetRole || ''} 
             onChange={handlePersonal} 
@@ -165,21 +165,21 @@ export const ResumeForm = () => {
         <div className="input-group mt-4">
           <label className="input-label font-semibold mb-2">Additional Links</label>
           {(data.personalDetails.customLinks || []).map((link, idx) => (
-            <div key={idx} className="mb-2 flex items-end gap-2 rounded-2xl border border-white/10 bg-white/5 p-3">
+            <div key={idx} className="flex gap-2 items-end bg-gray-50 dark:bg-gray-800 p-3 rounded border mb-2">
               <div className="flex-1">
-                <label className="mb-1 block text-xs text-slate-400">Label Name</label>
+                <label className="text-xs text-gray-500 mb-1 block">Label Name</label>
                 <input className="input-field py-1" value={link.label} onChange={(e) => updateCustomLink(idx, 'label', e.target.value)} placeholder="e.g. Custom Label" />
               </div>
               <div className="flex-1">
-                <label className="mb-1 block text-xs text-slate-400">Link URL</label>
+                <label className="text-xs text-gray-500 mb-1 block">Link URL</label>
                 <input type="url" className="input-field py-1" value={link.url} onChange={(e) => updateCustomLink(idx, 'url', e.target.value)} placeholder="https://example.com" />
               </div>
-              <button type="button" className="btn-danger flex h-[38px] w-[38px] items-center justify-center border border-rose-400/15 p-2" onClick={() => removeCustomLink(idx)}>
+              <button type="button" className="btn-danger p-2 h-[38px] w-[38px] flex items-center justify-center border border-red-200" onClick={() => removeCustomLink(idx)}>
                 <Trash2 size={16} />
               </button>
             </div>
           ))}
-          <button type="button" className="flex items-center text-sm font-medium text-indigo-300 hover:text-white" onClick={addCustomLink}>
+          <button type="button" className="text-sm text-indigo-600 font-medium flex items-center hover:text-indigo-700" onClick={addCustomLink}>
             <Plus size={14} className="mr-1" /> Add another link
           </button>
         </div>
@@ -257,7 +257,7 @@ export const ResumeForm = () => {
       </Section>
 
       <Section title="Skills">
-        <div className="mb-4 border-b border-white/10 pb-2 text-sm text-slate-400">
+        <div className="text-sm text-gray-500 mb-4 pb-2 border-b">
           Recommended: Use 4 skill categories for best formatting. (Min 3, Max 6 categories Allowed. Max 6 skills per category)
         </div>
         {data.skills.map((skill, idx) => (
@@ -287,7 +287,7 @@ export const ResumeForm = () => {
       </Section>
 
       <Section title="Projects">
-        <div className="mb-4 border-b border-white/10 pb-2 text-sm text-slate-400">Maximum 4 projects allowed. AI feedback available for descriptions.</div>
+        <div className="text-sm text-gray-500 mb-4 pb-2 border-b">Maximum 4 projects allowed. AI feedback available for descriptions.</div>
         {data.projects.map((proj, idx) => {
           const descWords = proj.description.split(/\s+/).filter(Boolean).length;
           return (
@@ -397,7 +397,7 @@ export const ResumeForm = () => {
       </Section>
 
       <Section title="Extra Curricular Activities">
-        <div className="mb-2 text-sm text-slate-400">
+        <div className="text-sm text-gray-500 mb-2">
           Note: You can choose only ONE section — Extra Curricular Activities or Certifications (recommended: Extra Curricular Activities).
         </div>
         {hasCertifications && (
@@ -435,14 +435,14 @@ export const ResumeForm = () => {
       </Section>
 
       <Section title="Certifications">
-        <div className="mb-2 text-sm text-slate-400">
+        <div className="text-sm text-gray-500 mb-2">
           Note: You can choose only ONE section — Extra Curricular Activities or Certifications (recommended: Extra Curricular Activities).
         </div>
         {hasExtraCurricular && (
           <div className="text-sm text-error mb-2 font-medium">This section is disabled because the other is already in use.</div>
         )}
         <div className={hasExtraCurricular ? 'opacity-50 pointer-events-none' : ''}>
-          <div className="mb-4 border-b border-white/10 pb-2 text-sm text-slate-400">Add certification details (title, link, date) or a single descriptive line.</div>
+          <div className="text-sm text-gray-500 mb-4 pb-2 border-b">Add certification details (title, link, date) or a single descriptive line.</div>
           {(data.certifications || []).map((cert, idx) => (
             <div key={cert.id} className="array-item">
               <div className="array-item-title">

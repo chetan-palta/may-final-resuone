@@ -1,4 +1,5 @@
 import * as React from "react"
+import { ChevronDown } from "lucide-react"
 
 const AccordionContext = React.createContext<{
   activeItem: string | null;
@@ -26,7 +27,7 @@ const AccordionItemContext = React.createContext<{
 const AccordionItem = ({ value, children, className }: { value: string, children: React.ReactNode, className?: string }) => {
   return (
     <AccordionItemContext.Provider value={{ value }}>
-      <div className={className || ""}>{children}</div>
+      <div className={`${className || ""}`}>{children}</div>
     </AccordionItemContext.Provider>
   );
 };
@@ -37,12 +38,19 @@ const AccordionTrigger = ({ children, className }: { children: React.ReactNode, 
   
   if (!context || !itemContext) return null;
 
+  const isOpen = context.activeItem === itemContext.value;
+
   return (
     <button 
       onClick={() => context.toggleItem(itemContext.value)}
-      className={`flex w-full items-center justify-between gap-4 rounded-2xl py-5 text-left font-medium transition-all duration-300 hover:scale-[1.01] ${className || ""}`}
+      className={`flex w-full items-center justify-between py-4 px-6 text-left font-bold text-slate-900 dark:text-white transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-800/30 rounded-t-xl ${isOpen ? 'bg-slate-100 dark:bg-slate-800/30' : ''} ${className || ""}`}
     >
-       {children}
+      <div className="flex items-center gap-3 flex-1">
+        {children}
+      </div>
+      <ChevronDown 
+        className={`w-5 h-5 text-slate-600 dark:text-slate-400 flex-shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+      />
     </button>
   );
 };
@@ -56,15 +64,13 @@ const AccordionContent = ({ children, className }: { children: React.ReactNode, 
   const isOpen = context.activeItem === itemContext.value;
 
   return (
-  return (
-    <div
-      className={`grid overflow-hidden text-sm transition-all duration-300 ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"} ${className || ""}`}
+    <div 
+      className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-96' : 'max-h-0'}`}
     >
-      <div className="overflow-hidden pb-5">
+      <div className={`px-6 pb-4 text-slate-600 dark:text-slate-300 leading-relaxed text-base ${className || ""}`}>
         {children}
       </div>
     </div>
-  );
   );
 };
 

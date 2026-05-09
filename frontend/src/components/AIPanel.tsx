@@ -6,9 +6,9 @@ export const AIPanel = () => {
 
   if (isAnalyzing) {
     return (
-      <div className="mt-6 flex items-center justify-center gap-3 rounded-3xl border border-cyan-400/15 bg-cyan-400/10 p-6 text-cyan-100 shadow-[0_16px_40px_rgba(6,182,212,0.12)] backdrop-blur-xl">
-        <BrainCircuit className="animate-pulse text-cyan-300" size={24} />
-        <span className="font-medium">AI is analyzing your resume...</span>
+      <div className="bg-blue-50/50 rounded-xl p-6 border border-blue-100 flex items-center justify-center gap-3 mt-6">
+        <BrainCircuit className="text-blue-500 animate-pulse" size={24} />
+        <span className="text-blue-700 font-medium">AI is analyzing your resume...</span>
       </div>
     );
   }
@@ -18,20 +18,20 @@ export const AIPanel = () => {
   }
 
   const getScoreColor = (score: number) => {
-    if (score >= 85) return 'text-emerald-100 bg-emerald-400/10 border-emerald-400/15';
-    if (score >= 70) return 'text-amber-100 bg-amber-400/10 border-amber-400/15';
-    return 'text-rose-100 bg-rose-500/10 border-rose-400/15';
+    if (score >= 85) return 'text-green-600 bg-green-50 border-green-200';
+    if (score >= 70) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+    return 'text-red-600 bg-red-50 border-red-200';
   };
 
   return (
-    <div className="mt-6 rounded-3xl border border-white/10 bg-white/5 p-6 text-slate-100 shadow-[0_20px_50px_rgba(15,23,42,0.18)] backdrop-blur-xl">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="flex items-center gap-2 text-lg font-bold text-white">
-          <Sparkles className="text-cyan-300" size={20} />
+        <h3 className="text-lg font-bold flex items-center gap-2">
+          <Sparkles className="text-blue-600" size={20} />
           AI Resume Suggestions
         </h3>
         {aiScore !== null && (
-          <div className={`rounded-full border px-4 py-1.5 text-sm font-bold backdrop-blur-md ${getScoreColor(aiScore)}`}>
+          <div className={`px-4 py-1.5 rounded-full border font-bold text-sm ${getScoreColor(aiScore)}`}>
             Score: {aiScore}/100
           </div>
         )}
@@ -39,14 +39,14 @@ export const AIPanel = () => {
 
       {aiSkillRecommendations && (
         <div className="mb-6">
-          <h4 className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-300">Recommended Skills</h4>
+          <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wider">Recommended Skills</h4>
           <div className="space-y-3">
             {aiSkillRecommendations.languages?.length > 0 && (
               <div>
-                <span className="text-xs font-semibold text-slate-400">Languages:</span>
+                <span className="text-xs font-semibold text-gray-500">Languages:</span>
                 <div className="flex flex-wrap gap-2 mt-1">
                   {aiSkillRecommendations.languages.map(skill => (
-                    <span key={skill} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-slate-200">
+                    <span key={skill} className="px-2.5 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">
                       {skill}
                     </span>
                   ))}
@@ -55,10 +55,10 @@ export const AIPanel = () => {
             )}
             {aiSkillRecommendations.tools?.length > 0 && (
               <div>
-                <span className="text-xs font-semibold text-slate-400">Tools/Frameworks:</span>
+                <span className="text-xs font-semibold text-gray-500">Tools/Frameworks:</span>
                 <div className="flex flex-wrap gap-2 mt-1">
                   {aiSkillRecommendations.tools.map(skill => (
-                    <span key={skill} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-slate-200">
+                    <span key={skill} className="px-2.5 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">
                       {skill}
                     </span>
                   ))}
@@ -67,10 +67,10 @@ export const AIPanel = () => {
             )}
             {aiSkillRecommendations.databases?.length > 0 && (
               <div>
-                <span className="text-xs font-semibold text-slate-400">Databases:</span>
+                <span className="text-xs font-semibold text-gray-500">Databases:</span>
                 <div className="flex flex-wrap gap-2 mt-1">
                   {aiSkillRecommendations.databases.map(skill => (
-                    <span key={skill} className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-slate-200">
+                    <span key={skill} className="px-2.5 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">
                       {skill}
                     </span>
                   ))}
@@ -83,20 +83,20 @@ export const AIPanel = () => {
 
       {aiSuggestions.length > 0 ? (
         <div>
-          <h4 className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-300">Improvement Areas</h4>
+          <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wider">Improvement Areas</h4>
           <div className="space-y-4">
             {aiSuggestions.map((section, sectionIdx) => (
-              <div key={sectionIdx} className="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
-                <span className="mb-2 block text-xs font-bold uppercase text-cyan-300">
+              <div key={sectionIdx} className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                <span className="text-xs font-bold text-blue-600 uppercase mb-2 block">
                   {section.section} #{section.index + 1}
                 </span>
                 <ul className="space-y-2">
                   {section.tips.map((tip, tipIdx) => (
-                    <li key={tipIdx} className="flex gap-2 text-sm text-slate-300">
+                    <li key={tipIdx} className="flex gap-2 text-sm text-gray-700">
                       {tip.type === 'weak-verb' || tip.type === 'length' ? (
-                        <AlertTriangle className="mt-0.5 shrink-0 text-amber-300" size={16} />
+                        <AlertTriangle className="text-yellow-500 shrink-0 mt-0.5" size={16} />
                       ) : (
-                        <AlertTriangle className="mt-0.5 shrink-0 text-cyan-300" size={16} />
+                        <AlertTriangle className="text-blue-500 shrink-0 mt-0.5" size={16} />
                       )}
                       <span>
                         {tip.message}
@@ -109,9 +109,9 @@ export const AIPanel = () => {
           </div>
         </div>
       ) : (
-        <div className="flex items-center justify-center gap-2 rounded-2xl border border-emerald-400/15 bg-emerald-400/10 p-4 text-emerald-100">
+        <div className="flex items-center justify-center gap-2 text-green-600 bg-green-50 p-4 rounded-lg border border-green-100">
           <CheckCircle size={20} />
-          <span className="font-medium">No pressing improvements detected. Great job.</span>
+          <span className="font-medium">No pressing improvements detected! Great job!</span>
         </div>
       )}
     </div>

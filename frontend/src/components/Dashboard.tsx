@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { Plus, Edit2, Trash2, Download, FileText, LogOut, ArrowLeft, Sparkles, FileSearch, LayoutGrid } from 'lucide-react';
+import { Plus, Edit2, Trash2, Download, FileText, LogOut, ArrowLeft, Clock, CheckCircle2, Zap } from 'lucide-react';
 import { useResume } from '../context/ResumeContext';
 import { API_URL } from '../config';
 
@@ -18,6 +18,7 @@ export const Dashboard = () => {
   const { setResumeData } = useResume();
   const [resumes, setResumes] = useState<ResumeMeta[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoading) {
@@ -59,10 +60,10 @@ export const Dashboard = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this resume?')) return;
     try {
       await axios.delete(`${API_URL}/api/resumes/${id}`, { withCredentials: true });
       setResumes(prev => prev.filter(r => r.id !== id));
+      setDeleteConfirm(null);
     } catch (err) {
       console.error(err);
       alert('Failed to delete resume');
@@ -79,192 +80,233 @@ export const Dashboard = () => {
 
   if (authLoading || loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 text-slate-100">
-        <div className="rounded-3xl border border-white/10 bg-white/5 px-8 py-6 text-center shadow-2xl shadow-slate-950/40 backdrop-blur-xl">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-blue-500 animate-pulse">
-            <Sparkles className="h-6 w-6 text-white" />
+      <div className="min-h-screen bg-white dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-950/50 mb-4">
+            <Zap className="w-6 h-6 text-indigo-600 dark:text-indigo-400 animate-pulse" />
           </div>
-          <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Loading workspace</p>
-          <p className="mt-2 text-base text-slate-200">Preparing your dashboard...</p>
+          <p className="text-slate-700 dark:text-slate-300 font-medium">Loading your resumes...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-100">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute left-[-6rem] top-0 h-80 w-80 rounded-full bg-indigo-600/15 blur-3xl" />
-        <div className="absolute right-[-6rem] top-24 h-96 w-96 rounded-full bg-violet-500/15 blur-3xl" />
-        <div className="absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl" />
+    <div className="min-h-screen bg-white dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-900 dark:text-white overflow-hidden">
+      {/* Animated Background */}
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-white dark:from-slate-950 dark:via-indigo-950/20 dark:to-slate-950" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-200 dark:bg-indigo-900/30 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-violet-200 dark:bg-violet-900/30 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000" />
       </div>
 
-      <nav className="sticky top-0 z-40 border-b border-white/10 bg-slate-950/70 backdrop-blur-xl">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-20 items-center justify-between gap-4">
-            <button onClick={() => navigate('/')} className="group flex items-center gap-3 rounded-2xl px-2 py-1 transition-all duration-300 hover:bg-white/5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-blue-500 shadow-[0_12px_30px_rgba(79,70,229,0.30)]">
-                <FileText className="h-5 w-5 text-white" />
+      {/* Premium Header */}
+      <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/70 dark:bg-slate-950/80 border-b border-slate-200/50 dark:border-slate-800/50 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <button
+              onClick={() => navigate('/')}
+              className="flex items-center gap-3 hover:opacity-75 transition-opacity"
+            >
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-600 flex items-center justify-center shadow-lg">
+                <FileText className="w-6 h-6 text-white" />
               </div>
-              <div className="text-left">
-                <span className="block text-lg font-semibold tracking-tight text-white">ResuOne</span>
-                <span className="block text-xs text-slate-400">Your resume workspace</span>
-              </div>
+              <span className="hidden sm:inline text-2xl font-black bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400 bg-clip-text text-transparent">
+                ResuOne
+              </span>
             </button>
 
-            <div className="hidden items-center gap-3 sm:flex">
-              <div className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-300 backdrop-blur-md">
-                Hello, <span className="font-semibold text-white">{user?.name}</span>
+            {/* User Profile & Actions */}
+            <div className="flex items-center gap-4">
+              <div className="hidden sm:flex flex-col items-end">
+                <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                  {user?.name}
+                </p>
+                <p className="text-xs text-slate-600 dark:text-slate-400">
+                  {resumes.length} of 5 resumes
+                </p>
               </div>
               <button
                 onClick={() => { logout(); navigate('/'); }}
-                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-200 transition-all duration-300 hover:border-rose-400/30 hover:bg-rose-500/10 hover:text-white hover:shadow-[0_18px_35px_rgba(244,63,94,0.14)]"
+                className="p-2.5 rounded-lg bg-slate-100 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:bg-red-100 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 transition-all duration-300"
                 title="Logout"
               >
-                <LogOut className="h-4 w-4" />
-                Logout
+                <LogOut className="w-5 h-5" />
               </button>
             </div>
           </div>
         </div>
-      </nav>
+      </header>
 
-      <main className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
-        <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-2xl">
-            <div className="mb-4 flex items-center gap-3">
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Header Section */}
+        <div className="mb-12">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+            <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate('/')}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-slate-200 shadow-lg shadow-slate-950/30 backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/10 hover:text-white"
+                className="p-2.5 rounded-lg bg-slate-100 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-300"
                 title="Back to Home"
               >
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="w-5 h-5" />
               </button>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Dashboard</p>
-                <h2 className="mt-1 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                  Your resume workspace
-                </h2>
+                <h1 className="text-4xl font-black bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-200 bg-clip-text text-transparent mb-1">
+                  Your Resumes
+                </h1>
+                <p className="text-slate-600 dark:text-slate-400">
+                  {resumes.length === 0 
+                    ? "Get started by creating your first resume" 
+                    : `You have ${resumes.length} resume${resumes.length !== 1 ? 's' : ''}`}
+                </p>
               </div>
             </div>
-            <p className="max-w-xl text-sm leading-7 text-slate-300">
-              Keep one polished resume version, update it quickly, and export with a premium ATS-friendly finish.
-            </p>
-          </div>
 
-          <div className="flex flex-col items-start gap-2 sm:items-end">
+            {/* Create Resume Button */}
             <button
-              type="button"
               onClick={handleCreate}
               disabled={resumes.length >= 5}
-              className={`group inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition-all duration-300 ${resumes.length >= 5 ? 'cursor-not-allowed border border-white/10 bg-white/8 text-slate-500 opacity-60' : 'border border-transparent bg-gradient-to-r from-indigo-500 via-violet-500 to-blue-500 text-white shadow-[0_18px_45px_rgba(79,70,229,0.30)] hover:scale-[1.01] hover:shadow-[0_24px_60px_rgba(79,70,229,0.38)]'}`}
+              className={`px-6 py-3 rounded-xl font-bold shadow-lg transition-all duration-300 flex items-center gap-2 whitespace-nowrap ${
+                resumes.length >= 5
+                  ? 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-500 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 text-white hover:shadow-xl hover:scale-105'
+              }`}
             >
-              <Plus className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90" />
-              Create resume
+              <Plus className="w-5 h-5" />
+              Create Resume
             </button>
-            {resumes.length >= 5 && (
-              <span className="text-xs text-slate-400">Maximum 5 saved resumes.</span>
-            )}
           </div>
+
+          {/* Limit Warning */}
+          {resumes.length >= 5 && (
+            <div className="mt-4 p-4 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 flex items-gap-3">
+              <Zap className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-amber-900 dark:text-amber-200">
+                You've reached the maximum of 5 resumes. Delete one to create a new one.
+              </p>
+            </div>
+          )}
         </div>
 
+        {/* Resume Cards Grid */}
         {resumes.length === 0 ? (
-          <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 px-6 py-16 text-center shadow-[0_24px_70px_rgba(15,23,42,0.22)] backdrop-blur-xl sm:px-10">
-            <div className="mx-auto flex max-w-xl flex-col items-center">
-              <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-[1.75rem] bg-gradient-to-br from-indigo-500 via-violet-500 to-blue-500 shadow-[0_20px_50px_rgba(79,70,229,0.30)]">
-                <FileSearch className="h-9 w-9 text-white" />
-              </div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-slate-300">
-                Empty workspace
-              </div>
-              <h3 className="mt-6 text-2xl font-bold tracking-tight text-white sm:text-3xl">No resume created yet</h3>
-              <p className="mt-4 max-w-lg text-sm leading-7 text-slate-300">
-                Start with one premium resume and keep everything standardized for placements, internships, and recruiter screening.
-              </p>
-              <button
-                type="button"
-                onClick={handleCreate}
-                className="mt-8 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-500 via-violet-500 to-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-[0_18px_45px_rgba(79,70,229,0.30)] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_24px_60px_rgba(79,70,229,0.38)]"
-              >
-                <Plus className="h-4 w-4" />
-                Create resume
-              </button>
+          // Empty State
+          <div className="rounded-2xl bg-gradient-to-br from-white to-slate-50 dark:from-slate-900/50 dark:to-slate-800/50 border border-slate-200/50 dark:border-slate-800/50 p-16 text-center shadow-lg">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-100 dark:bg-indigo-950/50 mb-6">
+              <FileText className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
             </div>
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+              No resumes yet
+            </h3>
+            <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-md mx-auto">
+              Create your first ATS-optimized resume and start your journey to landing your dream job.
+            </p>
+            <button
+              onClick={handleCreate}
+              className="px-8 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold hover:shadow-lg transition-all duration-300 hover:scale-105 inline-flex items-center gap-2"
+            >
+              <Plus className="w-5 h-5" />
+              Create Your First Resume
+            </button>
           </div>
         ) : (
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {resumes.map((resume, index) => (
-              <div
-                key={resume.id}
-                className="group relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 shadow-[0_20px_50px_rgba(15,23,42,0.2)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-indigo-400/25 hover:shadow-[0_28px_80px_rgba(79,70,229,0.18)]"
-              >
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                <div className="p-5">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0 flex-1">
-                      <div className="mb-3 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.2em]">
-                        <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-emerald-300">ATS-ready</span>
-                        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-300">Last edited</span>
-                      </div>
-                      <h3 className="truncate text-xl font-semibold tracking-tight text-white">{resume.title}</h3>
-                      <p className="mt-2 text-sm text-slate-400">
-                        Updated {new Date(resume.updatedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                      </p>
-                    </div>
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500/20 via-violet-500/20 to-blue-500/20 text-indigo-200 ring-1 ring-white/10">
-                      <LayoutGrid className="h-5 w-5" />
-                    </div>
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {resumes.map((resume) => {
+              const isBeingDeleted = deleteConfirm === resume.id;
+              const lastUpdated = new Date(resume.updatedAt);
+              const isRecentlyUpdated = (Date.now() - lastUpdated.getTime()) < (24 * 60 * 60 * 1000);
 
-                  <div className="mt-5 rounded-[1.5rem] border border-white/10 bg-slate-950/40 p-4">
-                    <div className="flex items-center justify-between text-xs text-slate-400">
-                      <span>Preview thumbnail</span>
-                      <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-300">
-                        Resume {index + 1}
+              return (
+                <div
+                  key={resume.id}
+                  className="group relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900/50 border border-slate-200/50 dark:border-slate-800/50 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 flex flex-col"
+                >
+                  {/* Gradient Border on Hover */}
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                  <div className="absolute inset-0.5 rounded-2xl bg-white dark:bg-slate-900/50 pointer-events-none" />
+
+                  {/* Content */}
+                  <div className="relative z-10 p-6 flex-1">
+                    <div className="flex items-start justify-between mb-4">
+                      <h3 className="text-xl font-bold text-slate-900 dark:text-white flex-1 pr-2 line-clamp-2">
+                        {resume.title}
+                      </h3>
+                      {isRecentlyUpdated && (
+                        <div className="flex-shrink-0 px-3 py-1 rounded-full bg-green-100 dark:bg-green-950/50 border border-green-200 dark:border-green-800">
+                          <span className="text-xs font-semibold text-green-700 dark:text-green-300 flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3" />
+                            New
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Last Updated */}
+                    <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                      <Clock className="w-4 h-4" />
+                      <span>
+                        Updated {lastUpdated.toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric'
+                        })}
                       </span>
                     </div>
-                    <div className="mt-4 space-y-3 rounded-[1.25rem] bg-gradient-to-br from-white/10 to-white/5 p-4 ring-1 ring-white/10">
-                      <div className="h-3 w-2/3 rounded-full bg-white/15" />
-                      <div className="h-2 w-5/6 rounded-full bg-white/10" />
-                      <div className="grid grid-cols-2 gap-2 pt-2">
-                        <div className="h-16 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-blue-500/20" />
-                        <div className="space-y-2 rounded-2xl bg-white/5 p-3">
-                          <div className="h-2 w-4/5 rounded-full bg-white/15" />
-                          <div className="h-2 w-2/3 rounded-full bg-white/10" />
-                          <div className="h-2 w-5/6 rounded-full bg-white/15" />
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="relative z-10 border-t border-slate-200/50 dark:border-slate-800/50 p-4 bg-slate-50/50 dark:bg-slate-900/20 rounded-b-2xl">
+                    {isBeingDeleted ? (
+                      // Delete Confirmation
+                      <div className="flex flex-col gap-2">
+                        <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">
+                          Delete this resume?
+                        </p>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleDelete(resume.id)}
+                            className="flex-1 px-3 py-2 rounded-lg bg-red-600 text-white text-sm font-bold hover:bg-red-700 transition-colors duration-300"
+                          >
+                            Delete
+                          </button>
+                          <button
+                            onClick={() => setDeleteConfirm(null)}
+                            className="flex-1 px-3 py-2 rounded-lg bg-slate-300 dark:bg-slate-700 text-slate-900 dark:text-white text-sm font-bold hover:bg-slate-400 dark:hover:bg-slate-600 transition-colors duration-300"
+                          >
+                            Cancel
+                          </button>
                         </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleEdit(resume.id)}
+                          className="flex-1 px-4 py-2.5 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-sm font-bold hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 hover:scale-105"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDownload(resume.id)}
+                          className="flex-1 px-4 py-2.5 rounded-lg bg-slate-200 dark:bg-slate-800/50 text-slate-900 dark:text-white text-sm font-bold hover:bg-slate-300 dark:hover:bg-slate-700 transition-all duration-300 flex items-center justify-center gap-2"
+                        >
+                          <Download className="w-4 h-4" />
+                          Download
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirm(resume.id)}
+                          className="px-4 py-2.5 rounded-lg bg-red-100 dark:bg-red-950/30 text-red-600 dark:text-red-400 text-sm font-bold hover:bg-red-200 dark:hover:bg-red-900/50 transition-all duration-300 flex items-center gap-1"
+                          title="Delete resume"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
-
-                <div className="border-t border-white/10 bg-slate-950/40 p-3">
-                  <div className="grid grid-cols-3 gap-2">
-                    <button
-                      onClick={() => handleEdit(resume.id)}
-                      className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-white/5 px-3 py-3 text-sm font-semibold text-slate-200 transition-all duration-300 hover:-translate-y-0.5 hover:bg-indigo-500/15 hover:text-white hover:shadow-[0_16px_30px_rgba(79,70,229,0.18)]"
-                    >
-                      <Edit2 className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDownload(resume.id)}
-                      className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-white/5 px-3 py-3 text-sm font-semibold text-slate-200 transition-all duration-300 hover:-translate-y-0.5 hover:bg-cyan-500/15 hover:text-white hover:shadow-[0_16px_30px_rgba(6,182,212,0.12)]"
-                    >
-                      <Download className="h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5" />
-                      Download
-                    </button>
-                    <button
-                      onClick={() => handleDelete(resume.id)}
-                      className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-white/5 px-3 py-3 text-sm font-semibold text-slate-300 transition-all duration-300 hover:-translate-y-0.5 hover:bg-rose-500/15 hover:text-rose-200 hover:shadow-[0_16px_30px_rgba(244,63,94,0.12)]"
-                    >
-                      <Trash2 className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </main>
