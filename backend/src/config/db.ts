@@ -32,6 +32,7 @@ export const initDb = async () => {
         google_id TEXT UNIQUE,
         avatar TEXT,
         password_hash TEXT,
+        is_admin BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
@@ -43,6 +44,16 @@ export const initDb = async () => {
         last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
+
+    // Alter table to add is_admin column if it doesn't exist (for existing databases)
+    try {
+      await client.query(`ALTER TABLE users ADD COLUMN is_admin BOOLEAN DEFAULT FALSE;`);
+    } catch (err: any) {
+      // Column likely already exists, ignore this error
+      if (!err.message.includes('already exists')) {
+        console.warn('Column addition warning:', err.message);
+      }
+    }
 
     console.log('Database tables verified/created successfully.');
   } catch (error) {

@@ -157,6 +157,33 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const clearSavedData = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
+    // Create fresh default data with new UUIDs
+    const freshDefaultData: ResumeData = {
+      personalDetails: {
+        fullName: '',
+        email: '',
+        phone: '',
+        linkedin: '',
+        github: '',
+        leetcode: '',
+        portfolio: '',
+        location: '',
+        customLinks: []
+      },
+      summary: '',
+      education: [
+        { id: uuidv4(), degree: '', institution: '', location: '', scoreType: 'CGPA (out of 10)', score: '', startDate: '', endDate: '' }
+      ],
+      skills: [
+        { id: uuidv4(), name: 'Languages', items: '' },
+        { id: uuidv4(), name: 'Technologies', items: '' }
+      ],
+      projects: [],
+      experience: [],
+      extraCurricular: [''],
+      certifications: []
+    };
+    setData(freshDefaultData);
   }, []);
 
   const setResumeData = (newData: ResumeData) => {
@@ -205,7 +232,7 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const updateSkillCategory = (id: string, field: string, value: string) => {
     if (field === 'items') {
       const parts = value.split(',').filter(x => x.trim() !== '');
-      if (parts.length > 6) return; // Enforce max 6 skills per category
+      if (parts.length > 4) return; // Enforce max 4 skills per category
     }
     setData(prev => ({
       ...prev,

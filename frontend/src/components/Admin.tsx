@@ -9,6 +9,7 @@ export const Admin = () => {
   const [resumes, setResumes] = useState<any[]>([]);
   const [filtered, setFiltered] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [filterName, setFilterName] = useState('');
   const [filterBranch, setFilterBranch] = useState('');
@@ -26,9 +27,15 @@ export const Admin = () => {
       const res = await axios.get(`${API_URL}/api/admin/resumes`, { withCredentials: true });
       setResumes(res.data.resumes || []);
       setFiltered(res.data.resumes || []);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Failed to fetch admin data.');
+      if (err.response?.status === 403) {
+        setError('You do not have permission to access the admin panel. Only authorized administrators can view this page.');
+      } else if (err.response?.status === 401) {
+        setError('You need to be logged in to access the admin panel.');
+      } else {
+        setError('Failed to fetch admin data.');
+      }
     } finally {
       setLoading(false);
     }
@@ -49,6 +56,24 @@ export const Admin = () => {
   }, [filterName, filterBranch, filterDate, resumes]);
 
   if (loading) return <div className="p-8 text-center">Loading Admin Panel...</div>;
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-red-50 dark:bg-red-950 text-red-900 dark:text-red-100 flex items-center justify-center p-4">
+        <div className="bg-white dark:bg-red-900 rounded-lg shadow-lg p-8 max-w-md text-center">
+          <ShieldCheck size={48} className="mx-auto mb-4 text-red-600 dark:text-red-400" />
+          <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
+          <p className="mb-6">{error}</p>
+          <button 
+            className="btn btn-primary"
+            onClick={() => navigate('/')}
+          >
+            Return to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 p-8">

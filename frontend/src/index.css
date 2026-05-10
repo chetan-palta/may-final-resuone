@@ -136,6 +136,13 @@ a:hover {
   flex-direction: column;
   box-shadow: var(--shadow-md);
   z-index: 10;
+  color: var(--text-main);
+}
+
+.dark .left-panel {
+  background-color: #0f172a;
+  border-right-color: #334155;
+  color: #f8fafc;
 }
 
 .right-panel {
@@ -166,6 +173,14 @@ a:hover {
   background: #94a3b8;
 }
 
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
 /* Shared UI Components */
 .input-group {
   margin-bottom: 1.25rem;
@@ -178,6 +193,10 @@ a:hover {
   font-weight: 500;
   color: var(--text-main);
   margin-bottom: 0.5rem;
+}
+
+.dark .input-label {
+  color: #f8fafc;
 }
 
 .input-count-limit {
@@ -199,6 +218,12 @@ a:hover {
   transition: all 0.2s;
   background-color: #f8fafc;
   font-family: var(--font-sans);
+  color: var(--text-main);
+}
+
+.input-field::placeholder {
+  color: var(--text-muted);
+  opacity: 0.7;
 }
 
 .input-field:focus {
@@ -206,11 +231,40 @@ a:hover {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px var(--focus-ring);
   background-color: var(--surface-color);
+  color: var(--text-main);
+}
+
+.dark .input-field {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+.dark .input-field:focus {
+  background-color: #0f172a;
+  border-color: #60a5fa;
+  color: #f8fafc;
+}
+
+.dark .input-field::placeholder {
+  color: #94a3b8;
 }
 
 textarea.input-field {
   resize: vertical;
   min-height: 80px;
+}
+
+.dark textarea.input-field {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+.dark textarea.input-field:focus {
+  background-color: #0f172a;
+  border-color: #60a5fa;
+  color: #f8fafc;
 }
 
 .input-field.error {
@@ -268,6 +322,16 @@ textarea.input-field {
   border-color: #cbd5e1;
 }
 
+.dark .btn-outline {
+  border-color: #475569;
+  color: #f8fafc;
+}
+
+.dark .btn-outline:hover {
+  background-color: #1e293b;
+  border-color: #64748b;
+}
+
 .btn-danger {
   background-color: transparent;
   color: var(--error);
@@ -275,6 +339,14 @@ textarea.input-field {
 
 .btn-danger:hover {
   background-color: #fef2f2;
+}
+
+.dark .btn-danger {
+  color: #f87171;
+}
+
+.dark .btn-danger:hover {
+  background-color: #7f1d1d;
 }
 
 /* Header */
@@ -286,6 +358,13 @@ textarea.input-field {
   align-items: center;
   background: white;
   flex-shrink: 0;
+  color: var(--text-main);
+}
+
+.dark .app-header {
+  background-color: #0f172a;
+  border-bottom-color: #334155;
+  color: #f8fafc;
 }
 
 .app-title {
@@ -298,11 +377,21 @@ textarea.input-field {
   gap: 0.5rem;
 }
 
+.dark .app-title {
+  color: #f8fafc;
+}
+
 /* Form Area */
 .form-area {
   flex: 1;
   overflow-y: auto;
   padding: 1.5rem;
+  background: var(--surface-color);
+}
+
+.dark .form-area {
+  background: linear-gradient(180deg, #0f172a 0%, #1a202c 100%);
+  background-attachment: fixed;
 }
 
 /* Section Header (Accordion-like) */
@@ -318,6 +407,7 @@ textarea.input-field {
   align-items: center;
   font-weight: 600;
   transition: all 0.2s;
+  color: var(--text-main);
 }
 
 .section-header.active {
@@ -332,6 +422,21 @@ textarea.input-field {
   border-color: #cbd5e1;
 }
 
+.dark .section-header {
+  background-color: #0f172a;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+.dark .section-header.active {
+  background-color: #1e293b;
+  border-color: #475569;
+}
+
+.dark .section-header:hover {
+  border-color: #475569;
+}
+
 .section-body {
   padding: 1.5rem;
   border: 1px solid var(--border-color);
@@ -340,6 +445,13 @@ textarea.input-field {
   border-bottom-right-radius: 0.5rem;
   margin-bottom: 1rem;
   background: white;
+  color: var(--text-main);
+}
+
+.dark .section-body {
+  background-color: #0f172a;
+  border-color: #334155;
+  color: #f8fafc;
 }
 
 /* Item List Arrays */
@@ -350,6 +462,7 @@ textarea.input-field {
   margin-bottom: 1rem;
   background: #f8fafc;
   position: relative;
+  color: var(--text-main);
 }
 
 .array-item-title {
@@ -357,6 +470,17 @@ textarea.input-field {
   margin-bottom: 0.75rem;
   display: flex;
   justify-content: space-between;
+  color: var(--text-main);
+}
+
+.dark .array-item {
+  border-color: #334155;
+  background-color: #1e293b;
+  color: #f8fafc;
+}
+
+.dark .array-item-title {
+  color: #f8fafc;
 }
 
 .input-row {

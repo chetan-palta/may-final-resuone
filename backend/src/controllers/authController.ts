@@ -4,8 +4,8 @@ import bcrypt from 'bcrypt';
 import pool from '../config/db';
 import axios from 'axios';
 
-const generateToken = (userId: number | string, email: string) => {
-  return jwt.sign({ id: userId, email }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: '7d' });
+const generateToken = (userId: number | string, email: string, isAdmin: boolean = false) => {
+  return jwt.sign({ id: userId, email, is_admin: isAdmin }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: '7d' });
 };
 
 const setSessionCookie = (res: Response, token: string) => {
@@ -63,17 +63,17 @@ export const googleAuthCallback = async (req: Request, res: Response) => {
 
     if (!user) {
       const { rows: inserted }: any = await pool.query(
-        'INSERT INTO users (google_id, email, name, avatar) VALUES ($1, $2, $3, $4) RETURNING id',
-        [googleId, email, name, avatar]
+        'INSERT INTO users (google_id, email, name, avatar, is_admin) VALUES ($1, $2, $3, $4, $5) RETURNING id, is_admin',
+        [googleId, email, name, avatar, false]
       );
-      user = { id: inserted[0].id, email, name, avatar };
+      user = { id: inserted[0].id, email, name, avatar, is_admin: inserted[0].is_admin || false };
     } else if (!user.google_id) {
       await pool.query('UPDATE users SET google_id = $1, avatar = $2 WHERE email = $3', [googleId, avatar, email]);
       user.google_id = googleId;
       user.avatar = avatar;
     }
 
-    const token = generateToken(user.id, user.email);
+    const token = generateToken(user.id, user.email, user.is_admin || false);
     setSessionCookie(res, token);
     
     res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
@@ -94,12 +94,13 @@ export const register = async (req: Request, res: Response) => {
     const passwordHash = await bcrypt.hash(password, 10);
     
     const { rows: inserted }: any = await pool.query(
-      'INSERT INTO users (email, name, password_hash) VALUES ($1, $2, $3) RETURNING id',
-      [email, name, passwordHash]
+      'INSERT INTO users (email, name, password_hash, is_admin) VALUES ($1, $2, $3, $4) RETURNING id, is_admin',
+      [email, name, passwordHash, false]
     );
     const id = inserted[0].id;
+    const isAdmin = inserted[0].is_admin || false;
 
-    const token = generateToken(id, email);
+    const token = generateToken(id, email, isAdmin);
     setSessionCookie(res, token);
     
     res.json({ user: { id, email, name } });
@@ -124,7 +125,7 @@ export const login = async (req: Request, res: Response) => {
     const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) return res.status(400).json({ error: 'Invalid credentials' });
 
-    const token = generateToken(user.id, user.email);
+    const token = generateToken(user.id, user.email, user.is_admin || false);
     setSessionCookie(res, token);
     
     res.json({ user: { id: user.id, email: user.email, name: user.name, avatar: user.avatar } });

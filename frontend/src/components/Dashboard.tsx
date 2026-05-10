@@ -15,7 +15,7 @@ interface ResumeMeta {
 export const Dashboard = () => {
   const { user, loading: authLoading, logout } = useAuth();
   const navigate = useNavigate();
-  const { setResumeData } = useResume();
+  const { setResumeData, clearSavedData } = useResume();
   const [resumes, setResumes] = useState<ResumeMeta[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
@@ -46,6 +46,8 @@ export const Dashboard = () => {
 
   const handleCreate = () => {
     if (resumes.length >= 5) return;
+    // Clear saved data so form starts empty
+    clearSavedData();
     navigate('/resume');
   };
 

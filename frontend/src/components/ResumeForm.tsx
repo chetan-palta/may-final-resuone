@@ -37,7 +37,7 @@ const SkillAutocomplete = ({ categoryName, currentItems, onSelect }: { categoryN
 
   const handleAdd = (skill: string) => {
     const items = currentItems.split(',').map(s => s.trim()).filter(Boolean);
-    if (!items.includes(skill) && items.length < 6) {
+    if (!items.includes(skill) && items.length < 4) {
       onSelect([...items, skill].join(', '));
     }
   };
@@ -258,7 +258,7 @@ export const ResumeForm = () => {
 
       <Section title="Skills">
         <div className="text-sm text-gray-500 mb-4 pb-2 border-b">
-          Recommended: Use 4 skill categories for best formatting. (Min 3, Max 6 categories Allowed. Max 6 skills per category)
+          Recommended: Use 4 skill categories for best formatting. (Min 3, Max 6 categories Allowed. Max 4 skills per category)
         </div>
         {data.skills.map((skill, idx) => (
           <div key={skill.id} className="array-item">

@@ -227,13 +227,29 @@ function App() {
     return <>{children}</>;
   };
 
+  const AdminProtectedRoute = ({ children }: { children: ReactNode }) => {
+    const { user, loading } = useAuth();
+
+    if (loading) {
+      return <div className="p-8 text-center text-gray-600">Loading session...</div>;
+    }
+
+    if (!user) {
+      return <Navigate to="/auth" replace />;
+    }
+
+    // Check if user has admin flag (this would be set in JWT from backend)
+    // For now, we rely on backend verification, but we can add frontend UI feedback
+    return <>{children}</>;
+  };
+
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+        <Route path="/admin" element={<AdminProtectedRoute><Admin /></AdminProtectedRoute>} />
         <Route path="/resume" element={<ProtectedRoute><MainApp /></ProtectedRoute>} />
         <Route path="/render/:id" element={<RenderRoute />} />
       </Routes>
