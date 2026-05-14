@@ -92,9 +92,9 @@ export const renderHtml = (data: ResumeData): string => {
               <div class="resume-section-title">Skills</div>
               <div class="resume-skills-group">
                 ${skills.map((skill: SkillCategory) => skill.name && skill.items ? `
-                  <div class="resume-skill-row">
-                    <span class="resume-item-subtitle" style="margin-right: 6px">• <b>${skill.name}:</b></span>
-                    <span>${skill.items}</span>
+                  <div class="resume-skill-row" style="display: flex; align-items: baseline; margin-bottom: 1px; font-size: 11pt; line-height: 1.2;">
+                    <span style="white-space: nowrap; margin-right: 4px; font-weight: bold; display: inline-block;">◦ ${skill.name}:</span>
+                    <span style="flex: 1;">${skill.items}</span>
                   </div>
                 ` : '').join('')}
               </div>
@@ -108,7 +108,7 @@ export const renderHtml = (data: ResumeData): string => {
                 <div class="resume-item">
                   <div class="resume-item-header">
                     <span class="resume-item-title">
-                      <span style="font-size: 10pt; margin-right: 4px;">●</span>
+                      <span style="font-size: 10pt; margin-right: 4px;">◦</span>
                       ${proj.title} ${proj.technologies ? `(${proj.technologies})` : ''}
                       ${(proj.link || proj.github) ? ' — ' : ''}
                       ${proj.link ? `<a href="${ensureHref(proj.link)}" style="text-decoration: underline; color: black;">Live</a>` : ''} 
@@ -130,20 +130,20 @@ export const renderHtml = (data: ResumeData): string => {
                 <div class="resume-item">
                   <div class="resume-item-header">
                     <span class="resume-item-title">
-                      <span style="font-size: 10pt; margin-right: 4px;">●</span>
+                      <span style="font-size: 10pt; margin-right: 4px;">◦</span>
                       ${exp.company}
                     </span>
                     <span class="resume-item-date">${exp.location} ${exp.type ? `(${exp.type})` : ''}</span>
                   </div>
                   <div class="resume-item-header" style="font-style: italic; font-size: 9.5pt; margin-top: -2px;">
                     <span style="margin-left: 1.5mm;">
-                      <span style="font-size: 9pt; margin-right: 4px;">○</span>
+                      <span style="font-size: 9pt; margin-right: 4px;">◦</span>
                       ${exp.role}
                     </span>
                     <span class="resume-item-date">${exp.startDate} – ${exp.endDate}</span>
                   </div>
                   <ul class="resume-list" style="margin-top: 1px;">
-                    ${exp.bulletPoints.map((bp: string) => bp ? `<li>${bp}</li>` : '').join('')}
+                    ${exp.bulletPoints.map((bp: string) => bp ? `<li>◦ ${bp}</li>` : '').join('')}
                   </ul>
                 </div>
               `).join('')}
@@ -171,7 +171,7 @@ export const renderHtml = (data: ResumeData): string => {
                       ${cert.date ? `<span class="resume-item-date">${cert.date}</span>` : ''}
                     </div>
                   ` : cert.description ? `
-                    <div style="margin-bottom: 2px">• ${cert.description}</div>
+                    <div style="margin-bottom: 2px">◦ ${cert.description}</div>
                   ` : ''}
                 </div>
               `).join('')}

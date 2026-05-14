@@ -616,8 +616,9 @@ textarea.input-field {
 
 .resume-skills-group {
   margin-bottom: 2px;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 8px;
 }
 
 .resume-skill-label {

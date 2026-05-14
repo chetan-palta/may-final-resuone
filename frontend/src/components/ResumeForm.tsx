@@ -252,8 +252,10 @@ export const ResumeForm = () => {
               </div>
             </div>
           </div>
-        ))}
-        <button className="btn btn-outline w-full mt-2" onClick={addEducation}><Plus size={16} /> Add Education</button>
+        ))}        <button className="btn btn-outline w-full mt-2" onClick={addEducation} disabled={data.education.length >= 4}><Plus size={16} /> Add Education</button>
+        {data.education.length >= 4 && (
+          <div className="text-xs text-amber-600 dark:text-amber-400 mt-2 text-center">Maximum 4 education entries allowed</div>
+        )}
       </Section>
 
       <Section title="Skills">
@@ -393,7 +395,10 @@ export const ResumeForm = () => {
             </div>
           </div>
         ))}
-        <button className="btn btn-outline w-full mt-2" onClick={addExperience}><Plus size={16} /> Add Experience</button>
+        <button className="btn btn-outline w-full mt-2" onClick={addExperience} disabled={data.experience.length >= 4}><Plus size={16} /> Add Experience</button>
+        {data.experience.length >= 4 && (
+          <div className="text-xs text-amber-600 dark:text-amber-400 mt-2 text-center">Maximum 4 experience entries allowed</div>
+        )}
       </Section>
 
       <Section title="Extra Curricular Activities">
@@ -512,10 +517,13 @@ export const ResumeForm = () => {
           <button 
             className="btn btn-outline w-full mt-2" 
             onClick={addCertification}
-            disabled={hasExtraCurricular}
+            disabled={hasCertifications || data.certifications.length >= 3}
           >
             <Plus size={16} /> Add Certification
           </button>
+          {data.certifications.length >= 3 && !hasExtraCurricular && (
+            <div className="text-xs text-amber-600 dark:text-amber-400 mt-2 text-center">Maximum 3 certifications allowed</div>
+          )}
         </div>
       </Section>
 

@@ -202,10 +202,13 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   const addEducation = () => {
-    setData(prev => ({
-      ...prev,
-      education: [...prev.education, { id: uuidv4(), degree: '', institution: '', location: '', scoreType: 'CGPA (out of 10)', score: '', startDate: '', endDate: '' }]
-    }));
+    setData(prev => {
+      if (prev.education.length >= 4) return prev; // Enforce max 4 education entries
+      return {
+        ...prev,
+        education: [...prev.education, { id: uuidv4(), degree: '', institution: '', location: '', scoreType: 'CGPA (out of 10)', score: '', startDate: '', endDate: '' }]
+      };
+    });
   };
 
   const updateEducation = (id: string, field: string, value: string) => {
@@ -266,10 +269,13 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   const addExperience = () => {
-    setData(prev => ({
-      ...prev,
-      experience: [...prev.experience, { id: uuidv4(), company: '', role: '', location: '', type: '', startDate: '', endDate: '', bulletPoints: ['', '', ''] }]
-    }));
+    setData(prev => {
+      if (prev.experience.length >= 4) return prev; // Enforce max 4 experience entries
+      return {
+        ...prev,
+        experience: [...prev.experience, { id: uuidv4(), company: '', role: '', location: '', type: '', startDate: '', endDate: '', bulletPoints: ['', '', ''] }]
+      };
+    });
   };
 
   const updateExperience = (id: string, field: string, value: string) => {
@@ -316,10 +322,13 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   // Certifications CRUD
   const addCertification = () => {
-    setData(prev => ({
-      ...prev,
-      certifications: [...prev.certifications, { id: uuidv4(), title: '', issuer: '', link: '', date: '', description: '' }]
-    }));
+    setData(prev => {
+      if (prev.certifications.length >= 3) return prev; // Enforce max 3 certifications
+      return {
+        ...prev,
+        certifications: [...prev.certifications, { id: uuidv4(), title: '', issuer: '', link: '', date: '', description: '' }]
+      };
+    });
   };
 
   const updateCertification = (id: string, field: string, value: string) => {
