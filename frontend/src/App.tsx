@@ -13,6 +13,8 @@ import { Admin } from './components/Admin';
 import { useAuth } from './context/AuthContext';
 import axios from 'axios';
 import { API_URL } from './config';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 axios.defaults.withCredentials = true;
 
@@ -60,27 +62,64 @@ const MainApp = () => {
     if (!validateExtraCurricular()) return;
     setIsExporting(true);
     try {
+      // If logged in and managing a resume, save first to preserve server copy
       if (data.id) {
-        // Automatically save on export if logged in and managing a resume
         await axios.post(`${API_URL}/api/resumes`, data, { withCredentials: true });
       }
-      
-      const response = await fetch(`${API_URL}/api/resumes/export-direct`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(data)
-      });
-      if (!response.ok) throw new Error('Failed to generate PDF');
 
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${data.personalDetails.fullName.replace(/\s+/g, '_') || 'resume'}.pdf`;
-      a.click();
-      window.URL.revokeObjectURL(url);
-      // Clear saved data after successful export
+      // Ensure Times New Roman is loaded to prevent font fallback
+      try {
+        if ((document as any).fonts && (document as any).fonts.load) {
+          // load regular and bold weights used in preview
+          await (document as any).fonts.load('11pt "Times New Roman"');
+          await (document as any).fonts.load('700 24pt "Times New Roman"');
+        }
+      } catch (e) {
+        // ignore font loading issues but proceed
+        console.warn('Font load warning', e);
+      }
+
+      // Grab the exact preview node
+      const resumeElement = document.getElementById('resume-preview');
+      if (!resumeElement) throw new Error('Preview element not found');
+
+      // Freeze dimensions to exact A4 pixel size before capture
+      const prevStyle = {
+        width: resumeElement.style.width,
+        minHeight: resumeElement.style.minHeight,
+        transform: resumeElement.style.transform,
+      };
+      resumeElement.style.width = '794px';
+      resumeElement.style.minHeight = '1123px';
+      resumeElement.style.background = '#ffffff';
+      resumeElement.style.transform = 'none';
+
+      // Use strict html2canvas config to avoid scaling/reflow
+      const canvas = await html2canvas(resumeElement as HTMLElement, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        windowWidth: (resumeElement as HTMLElement).scrollWidth,
+        windowHeight: (resumeElement as HTMLElement).scrollHeight,
+      });
+
+      // Restore styles
+      resumeElement.style.width = prevStyle.width;
+      resumeElement.style.minHeight = prevStyle.minHeight;
+      resumeElement.style.transform = prevStyle.transform;
+
+      const imgData = canvas.toDataURL('image/png', 1.0);
+
+      // Create jsPDF with px units and exact A4 px dimensions
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: [794, 1123] });
+      // Add image at full page size
+      pdf.addImage(imgData, 'PNG', 0, 0, 794, 1123);
+
+      // Trigger download
+      pdf.save(`${data.personalDetails.fullName.replace(/\s+/g, '_') || 'resume'}.pdf`);
+
+      // Optionally clear saved data after successful export
       clearSavedData();
     } catch (error) {
       console.error(error);

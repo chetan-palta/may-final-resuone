@@ -494,6 +494,7 @@ textarea.input-field {
 
 /* A4 Print Preview Strict Styling */
 .a4-container {
+  /* Keep mm sizing for visual design, but preview/export target uses #resume-preview px override */
   width: 210mm;
   /* A4 Width */
   height: 297mm;
@@ -503,6 +504,14 @@ textarea.input-field {
   position: relative;
   overflow: hidden;
   /* Enforce 1 page visually in app */
+}
+
+/* Exact pixel A4 container used for export capture. Matches jsPDF px dimensions. */
+#resume-preview {
+  width: 794px !important;
+  min-height: 1123px !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
 }
 
 /* The actual printable area */
@@ -602,16 +611,27 @@ textarea.input-field {
 .resume-list {
   padding-left: 6mm;
   margin-top: 2px;
-  list-style-type: disc;
+  list-style-type: none; /* we'll render bullets explicitly for pixel control */
 }
 
 .resume-list li {
   margin-bottom: 2px;
   text-align: left;
   font-size: 10.5pt;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal; /* allow wrapping identical to preview */
+  overflow: visible;
+  text-overflow: unset;
+  display: flex; /* align bullet and text baseline */
+  align-items: flex-start;
+  gap: 6px;
+}
+.resume-list li .bullet {
+  flex: 0 0 auto;
+  font-size: 10pt;
+  line-height: 1.2;
+}
+.resume-list li .text {
+  flex: 1 1 auto;
 }
 
 .resume-skills-group {
