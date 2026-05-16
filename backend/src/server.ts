@@ -27,7 +27,8 @@ app.use(cors({
     'http://localhost:5173',
     'https://resuone.vercel.app'
   ],
-  credentials: true
+  credentials: true,
+  exposedHeaders: ['X-Render-Url']
 }));
 
 app.use((req, res, next) => {
