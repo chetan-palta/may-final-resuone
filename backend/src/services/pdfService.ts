@@ -41,3 +41,34 @@ export const generatePdf = async (data: ResumeData): Promise<Buffer> => {
     throw error;
   }
 };
+
+export const generatePdfFromUrl = async (url: string): Promise<Buffer> => {
+  let browser;
+  try {
+    browser = await puppeteer.launch({
+      headless: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+
+    const page = await browser.newPage();
+    await page.goto(url, { waitUntil: 'networkidle0' });
+
+    // Ensure fonts/styles loaded
+    await page.evaluateHandle('document.fonts.ready');
+
+    const pdfBuffer = await page.pdf({
+      width: '794px',
+      height: '1123px',
+      printBackground: true,
+      preferCSSPageSize: false,
+      margin: { top: '0mm', right: '0mm', bottom: '0mm', left: '0mm' }
+    });
+
+    await browser.close();
+    return Buffer.from(pdfBuffer);
+  } catch (error) {
+    console.error('PDF from URL failed:', error);
+    if (browser) await browser.close();
+    throw error;
+  }
+};

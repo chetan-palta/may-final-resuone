@@ -143,14 +143,24 @@ export const getResumePdf = async (req: Request, res: Response) => {
 export const exportDirect = async (req: Request, res: Response) => {
   try {
     const data = req.body;
-    
-    // Generate PDF buffer using server-side template
-    const pdfBuffer = await generatePdf(data as any);
+    // Save data to a temporary resume row so the frontend /render/:id route can render the exact LivePreview DOM
+    const tempId = randomUUID();
+    await pool.query('INSERT INTO resumes (id, name, data) VALUES ($1, $2, $3)', [tempId, `export-temp-${tempId}`, JSON.stringify(data)]);
+
+    // Determine frontend URL from env or default
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const renderUrl = `${frontendUrl}/render/${tempId}`;
+
+    // Generate PDF by loading the actual frontend render route (single source of truth)
+    const { generatePdfFromUrl } = await import('../services/pdfService');
+    const pdfBuffer = await generatePdfFromUrl(renderUrl);
+
+    // Cleanup temporary row
+    await pool.query('DELETE FROM resumes WHERE id = $1', [tempId]);
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Length", pdfBuffer.length.toString());
     res.setHeader("Content-Disposition", 'attachment; filename="resume.pdf"');
-    
     res.send(pdfBuffer);
   } catch (error) {
     console.error('Direct PDF generation error:', error);

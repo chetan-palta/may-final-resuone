@@ -209,6 +209,34 @@ const MainApp = () => {
   );
 };
 
+// Expose a dev helper to capture the export canvas used by handleExport.
+// This is intentionally small and only used by local tests.
+if (typeof window !== 'undefined') {
+  (window as any).__captureExportCanvas = async () => {
+    try {
+      // load html2canvas dynamically
+      const html2canvasModule = (await import('./../node_modules/html2canvas/dist/html2canvas.js')).default || (await import('html2canvas')).default;
+      const previewEl = document.getElementById('resume-preview');
+      if (!previewEl) return null;
+      // ensure fonts
+      try { await (document as any).fonts.ready; } catch (e) {}
+      const canvas = await html2canvasModule(previewEl as HTMLElement, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        windowWidth: (previewEl as HTMLElement).scrollWidth,
+        windowHeight: (previewEl as HTMLElement).scrollHeight
+      });
+      return canvas.toDataURL('image/png');
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('captureExportCanvas error', err);
+      return null;
+    }
+  };
+}
+
 // We create a hidden route that Puppeteer will visit
 const RenderRoute = () => {
   const { id } = useParams();
@@ -290,6 +318,21 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Public test route to render LivePreview with sample data for export testing */}
+        <Route path="/preview-test" element={
+          <div style={{ background: 'white', display: 'flex', justifyContent: 'center', padding: '20px' }}>
+            <LivePreview data={{
+              personalDetails: { fullName: 'Test User', email: 'test@example.com', phone: '1234567890', location: 'Remote' },
+              summary: 'This is a test summary to validate PDF export rendering and layout consistency across multiple sections.',
+              education: [{ id: 'e1', degree: 'B.Sc Computer Science', institution: 'Test University', startDate: '2019', endDate: '2023', location: 'Test City', score: '8.5', scoreType: 'CGPA' }],
+              skills: [{ id: 's1', name: 'Languages', items: 'Python, JavaScript, C++' }, { id: 's2', name: 'Tools', items: 'Docker, Git, AWS' }],
+              projects: [{ id: 'p1', title: 'Project Alpha', technologies: 'React, Node', link: '', github: '', date: 'Dec 2025', description: 'An example long project description intended to test wrapping behavior in both preview and export. '.repeat(6) }],
+              experience: [{ id: 'x1', company: 'ACME Corp', role: 'Software Engineer', startDate: 'May 2023', endDate: 'Present', location: 'Remote', type: 'Full-time', bulletPoints: ['Implemented feature X with performance improvements', 'Led migration to new infra', 'Wrote comprehensive tests and documentation'] }],
+              extraCurricular: ['Volunteer contributor to open source projects', 'Organizer of local meetup group'],
+              certifications: [{ id: 'c1', title: 'ML for Data Science Projects', issuer: 'IBM SkillsBuild', date: '2024' }]
+            }} />
+          </div>
+        } />
         <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
