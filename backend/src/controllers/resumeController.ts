@@ -7,6 +7,13 @@ import { generatePdf } from '../services/pdfService';
 export const getResumeById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    // Check in-memory temp store first (used for debug/export flows when DB is unavailable)
+    const anyReq: any = req;
+    if ((global as any).__TEMP_RESUME_STORE && (global as any).__TEMP_RESUME_STORE.has(id)) {
+      const data = (global as any).__TEMP_RESUME_STORE.get(id);
+      return res.json({ id, ...data });
+    }
+
     const { rows }: any = await pool.query('SELECT * FROM resumes WHERE id = $1', [id]);
     
     if (rows.length === 0) {
@@ -143,16 +150,31 @@ export const getResumePdf = async (req: Request, res: Response) => {
 export const exportDirect = async (req: Request, res: Response) => {
   try {
     const data = req.body;
-    // Save data to a temporary resume row so the frontend /render/:id route can render the exact LivePreview DOM
-    const tempId = randomUUID();
-    await pool.query('INSERT INTO resumes (id, name, data) VALUES ($1, $2, $3)', [tempId, `export-temp-${tempId}`, JSON.stringify(data)]);
+    // Save data to an in-memory temp store when in debug mode to avoid DB dependency during tests
+    const tempId = `temp-${randomUUID()}`;
+    const debug = req.query?.debug === 'true' || req.body?.debug === true;
+    console.log('[exportDirect] debug=', debug, 'query=', req.query, 'bodyKeys=', Object.keys(req.body || {}));
+    let usedInMemory = false;
+    if (debug) {
+      if (!(global as any).__TEMP_RESUME_STORE) (global as any).__TEMP_RESUME_STORE = new Map();
+      (global as any).__TEMP_RESUME_STORE.set(tempId, data);
+      usedInMemory = true;
+    } else {
+      try {
+        await pool.query('INSERT INTO resumes (id, name, data) VALUES ($1, $2, $3)', [tempId, `export-temp-${tempId}`, JSON.stringify(data)]);
+      } catch (dbErr) {
+        console.error('[exportDirect] DB insert failed, falling back to in-memory store:', dbErr);
+        if (!(global as any).__TEMP_RESUME_STORE) (global as any).__TEMP_RESUME_STORE = new Map();
+        (global as any).__TEMP_RESUME_STORE.set(tempId, data);
+        usedInMemory = true;
+      }
+    }
 
     // Determine frontend URL from env or default
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     const renderUrl = `${frontendUrl}/render/${tempId}`;
 
-    // If debug flag is set, return the render URL and keep the row for inspection (no PDF generation)
-    const debug = req.query?.debug === 'true';
+    // If debug flag is set, return the render URL and keep the temp data for inspection (no PDF generation)
     if (debug) {
       res.json({ renderUrl });
       return;
@@ -163,7 +185,11 @@ export const exportDirect = async (req: Request, res: Response) => {
     const pdfBuffer = await generatePdfFromUrl(renderUrl);
 
     // Cleanup temporary row after PDF generation
-    await pool.query('DELETE FROM resumes WHERE id = $1', [tempId]);
+    if (usedInMemory) {
+      (global as any).__TEMP_RESUME_STORE.delete(tempId);
+    } else {
+      await pool.query('DELETE FROM resumes WHERE id = $1', [tempId]);
+    }
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Length", pdfBuffer.length.toString());

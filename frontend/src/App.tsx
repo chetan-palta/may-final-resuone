@@ -246,7 +246,8 @@ const RenderRoute = () => {
   useEffect(() => {
     const fetchResume = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/resumes/${id}`, {
+        const base = (typeof API_URL !== 'undefined' && API_URL) ? API_URL : '';
+        const res = await fetch(`${base}/api/resumes/${id}`, {
           credentials: 'include',
         });
 
@@ -255,13 +256,14 @@ const RenderRoute = () => {
 
         // Map DB snake_case columns back to frontend camelCase
         const mappedData = {
-          personalDetails: dbData.personal_details || {},
-          summary: dbData.summary || '',
-          education: dbData.education || [],
-          skills: dbData.skills || [],
-          projects: dbData.projects || [],
-          experience: dbData.experience || [],
-          extraCurricular: dbData.extra_curricular || []
+          // Support both API returning DB-style snake_case and our in-memory debug objects (camelCase)
+          personalDetails: dbData.personal_details || dbData.personalDetails || {},
+          summary: dbData.summary || dbData.summary || '',
+          education: dbData.education || dbData.education || [],
+          skills: dbData.skills || dbData.skills || [],
+          projects: dbData.projects || dbData.projects || [],
+          experience: dbData.experience || dbData.experience || [],
+          extraCurricular: dbData.extra_curricular || dbData.extraCurricular || []
         };
 
         setData(mappedData);
