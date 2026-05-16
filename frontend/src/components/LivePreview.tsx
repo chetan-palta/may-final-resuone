@@ -147,9 +147,7 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ data }) => {
                   <span className="resume-item-date">{exp.startDate} – {exp.endDate}</span>
                 </div>
                 <ul className="resume-list" style={{ marginTop: '1px' }}>
-                  {exp.bulletPoints.map((bp, i) => bp && (
-                    <li key={i}><span className="bullet">◦</span><span className="text">{bp}</span></li>
-                  ))}
+                  {exp.bulletPoints.map((bp, i) => bp && <li key={i}>{bp}</li>)}
                 </ul>
               </div>
             ))}
@@ -161,7 +159,7 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ data }) => {
           <div className="resume-section">
             <div className="resume-section-title">Extra Curricular Activities</div>
             <ul className="resume-list">
-              {extraCurricular.map((item, i) => item.trim() && <li key={i}><span className="bullet">◦</span><span className="text">{item}</span></li>)}
+              {extraCurricular.map((item, i) => item.trim() && <li key={i}>{item}</li>)}
             </ul>
           </div>
         )}
@@ -186,8 +184,8 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ data }) => {
                       {cert.date && <span className="resume-item-date">{cert.date}</span>}
                     </div>
                   </>
-                  ) : cert.description ? (
-                  <div style={{ marginBottom: '2px' }}><span className="bullet">◦</span><span className="text">{cert.description}</span></div>
+                ) : cert.description ? (
+                  <ul className="resume-list"><li>{cert.description}</li></ul>
                 ) : null}
               </div>
             ))}

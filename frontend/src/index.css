@@ -494,24 +494,13 @@ textarea.input-field {
 
 /* A4 Print Preview Strict Styling */
 .a4-container {
-  /* Keep mm sizing for visual design, but preview/export target uses #resume-preview px override */
-  width: 210mm;
-  /* A4 Width */
-  height: 297mm;
-  /* A4 Height */
+  /* Fixed pixel A4 to ensure export parity with preview */
+  width: 794px; /* A4 width in px at 96dpi */
+  min-height: 1123px; /* A4 height in px at 96dpi */
   background: white;
   box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   position: relative;
   overflow: hidden;
-  /* Enforce 1 page visually in app */
-}
-
-/* Exact pixel A4 container used for export capture. Matches jsPDF px dimensions. */
-#resume-preview {
-  width: 794px !important;
-  min-height: 1123px !important;
-  background: #ffffff !important;
-  box-shadow: none !important;
 }
 
 /* The actual printable area */
@@ -611,27 +600,40 @@ textarea.input-field {
 .resume-list {
   padding-left: 6mm;
   margin-top: 2px;
-  list-style-type: none; /* we'll render bullets explicitly for pixel control */
+  list-style-type: disc;
 }
 
 .resume-list li {
   margin-bottom: 2px;
   text-align: left;
   font-size: 10.5pt;
-  white-space: normal; /* allow wrapping identical to preview */
-  overflow: visible;
-  text-overflow: unset;
-  display: flex; /* align bullet and text baseline */
+  /* Use flex to keep bullet aligned with baseline and preserve wrapping */
+  display: flex;
   align-items: flex-start;
   gap: 6px;
+  white-space: normal;
 }
-.resume-list li .bullet {
-  flex: 0 0 auto;
-  font-size: 10pt;
-  line-height: 1.2;
+
+/* Remove default markers so we control bullets explicitly */
+.resume-list {
+  list-style: none;
+  padding-left: 0;
 }
-.resume-list li .text {
-  flex: 1 1 auto;
+
+/* Use a hollow bullet rendered via pseudo-element for consistent alignment */
+.resume-list li::before {
+  content: '◦';
+  display: inline-block;
+  width: 1em;
+  margin-right: 6px;
+  line-height: 1;
+}
+
+/* Prevent any transformations or layout shifts during export */
+.export-lock, .export-lock * {
+  transform: none !important;
+  box-shadow: none !important;
+  transition: none !important;
 }
 
 .resume-skills-group {

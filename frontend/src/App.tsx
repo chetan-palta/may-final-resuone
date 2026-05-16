@@ -13,8 +13,6 @@ import { Admin } from './components/Admin';
 import { useAuth } from './context/AuthContext';
 import axios from 'axios';
 import { API_URL } from './config';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
 
 axios.defaults.withCredentials = true;
 
@@ -62,64 +60,71 @@ const MainApp = () => {
     if (!validateExtraCurricular()) return;
     setIsExporting(true);
     try {
-      // If logged in and managing a resume, save first to preserve server copy
       if (data.id) {
+        // Automatically save on export if logged in and managing a resume
         await axios.post(`${API_URL}/api/resumes`, data, { withCredentials: true });
       }
-
-      // Ensure Times New Roman is loaded to prevent font fallback
+      // CLIENT-SIDE EXPORT: Capture exact preview DOM and generate PDF from it
+      // Ensure fonts are loaded to prevent fallback during capture
       try {
-        if ((document as any).fonts && (document as any).fonts.load) {
-          // load regular and bold weights used in preview
-          await (document as any).fonts.load('11pt "Times New Roman"');
-          await (document as any).fonts.load('700 24pt "Times New Roman"');
-        }
+        await document.fonts.load('16px "Times New Roman"');
+        await (document as any).fonts.ready;
       } catch (e) {
-        // ignore font loading issues but proceed
-        console.warn('Font load warning', e);
+        // ignore font load failure; proceed
       }
 
-      // Grab the exact preview node
-      const resumeElement = document.getElementById('resume-preview');
-      if (!resumeElement) throw new Error('Preview element not found');
+      const previewEl = document.getElementById('resume-preview');
+      if (!previewEl) throw new Error('Resume preview not available for export');
 
-      // Freeze dimensions to exact A4 pixel size before capture
-      const prevStyle = {
-        width: resumeElement.style.width,
-        minHeight: resumeElement.style.minHeight,
-        transform: resumeElement.style.transform,
-      };
-      resumeElement.style.width = '794px';
-      resumeElement.style.minHeight = '1123px';
-      resumeElement.style.background = '#ffffff';
-      resumeElement.style.transform = 'none';
+      // Freeze dimensions and styles to avoid reflow during capture
+      const prevWidth = (previewEl as HTMLElement).style.width || '';
+      const prevMinHeight = (previewEl as HTMLElement).style.minHeight || '';
+      (previewEl as HTMLElement).style.width = '794px';
+      (previewEl as HTMLElement).style.minHeight = '1123px';
+      (previewEl as HTMLElement).classList.add('export-lock');
 
-      // Use strict html2canvas config to avoid scaling/reflow
-      const canvas = await html2canvas(resumeElement as HTMLElement, {
+      // Allow the browser a tick to apply styles
+      await new Promise(res => setTimeout(res, 120));
+
+      const html2canvasModule = (await import('html2canvas')).default;
+      const jspdfModule = await import('jspdf');
+
+      const canvas = await html2canvasModule(previewEl as HTMLElement, {
         scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
-        windowWidth: (resumeElement as HTMLElement).scrollWidth,
-        windowHeight: (resumeElement as HTMLElement).scrollHeight,
+        windowWidth: (previewEl as HTMLElement).scrollWidth,
+        windowHeight: (previewEl as HTMLElement).scrollHeight
       });
 
-      // Restore styles
-      resumeElement.style.width = prevStyle.width;
-      resumeElement.style.minHeight = prevStyle.minHeight;
-      resumeElement.style.transform = prevStyle.transform;
+      const imgData = canvas.toDataURL('image/png');
+      const { jsPDF } = jspdfModule;
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: [794, 1123]
+      });
 
-      const imgData = canvas.toDataURL('image/png', 1.0);
+      const imgWidth = 794;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      // Create jsPDF with px units and exact A4 px dimensions
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: [794, 1123] });
-      // Add image at full page size
-      pdf.addImage(imgData, 'PNG', 0, 0, 794, 1123);
+      let position = 0;
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      while (position + 1123 < imgHeight) {
+        position += 1123;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, -position, imgWidth, imgHeight);
+      }
 
-      // Trigger download
       pdf.save(`${data.personalDetails.fullName.replace(/\s+/g, '_') || 'resume'}.pdf`);
 
-      // Optionally clear saved data after successful export
+      // cleanup
+      (previewEl as HTMLElement).classList.remove('export-lock');
+      (previewEl as HTMLElement).style.width = prevWidth;
+      (previewEl as HTMLElement).style.minHeight = prevMinHeight;
+
+      // Clear saved data after successful export
       clearSavedData();
     } catch (error) {
       console.error(error);
