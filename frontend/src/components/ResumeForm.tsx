@@ -102,7 +102,7 @@ export const ResumeForm = () => {
   };
 
   const summaryWords = data.summary.split(/\s+/).filter(Boolean).length;
-  const hasCertifications = data.certifications.length > 0 && data.certifications.some(c => c.title.trim() || c.description.trim());
+  const hasCertifications = data.certifications.length > 0 && data.certifications.some(c => c.title.trim() || (c.description && c.description.trim()));
   const hasExtraCurricular = data.extraCurricular.some(e => e.trim());
 
   return (

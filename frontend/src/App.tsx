@@ -215,7 +215,7 @@ if (typeof window !== 'undefined') {
   (window as any).__captureExportCanvas = async () => {
     try {
       // load html2canvas dynamically
-      const html2canvasModule = (await import('./../node_modules/html2canvas/dist/html2canvas.js')).default || (await import('html2canvas')).default;
+      const html2canvasModule = (await import('html2canvas')).default;
       const previewEl = document.getElementById('resume-preview');
       if (!previewEl) return null;
       // ensure fonts

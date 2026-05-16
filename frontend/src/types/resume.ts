@@ -2,10 +2,10 @@ export interface PersonalDetails {
   fullName: string;
   email: string;
   phone: string;
-  linkedin: string;
-  github: string;
-  leetcode: string;
-  portfolio: string;
+  linkedin?: string;
+  github?: string;
+  leetcode?: string;
+  portfolio?: string;
   location: string;
   targetRole?: string;
   customLinks?: { label: string; url: string }[];
@@ -53,9 +53,9 @@ export interface Certification {
   id: string;
   title: string;
   issuer: string;
-  link: string;
+  link?: string;
   date: string;
-  description: string;
+  description?: string;
 }
 
 export interface ResumeData {

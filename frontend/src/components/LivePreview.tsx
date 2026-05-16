@@ -165,7 +165,7 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ data }) => {
         )}
 
         {/* Certifications (Only if No ECs) */}
-        {!extraCurricular.some(e => e.trim()) && certifications.length > 0 && certifications.some(c => c.title.trim() || c.description.trim()) && (
+        {!extraCurricular.some(e => e.trim()) && certifications.length > 0 && certifications.some(c => c.title.trim() || (c.description && c.description.trim())) && (
           <div className="resume-section">
             <div className="resume-section-title">Certifications</div>
             {certifications.map(cert => (
