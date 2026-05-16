@@ -151,11 +151,18 @@ export const exportDirect = async (req: Request, res: Response) => {
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     const renderUrl = `${frontendUrl}/render/${tempId}`;
 
+    // If debug flag is set, return the render URL and keep the row for inspection (no PDF generation)
+    const debug = req.query?.debug === 'true';
+    if (debug) {
+      res.json({ renderUrl });
+      return;
+    }
+
     // Generate PDF by loading the actual frontend render route (single source of truth)
     const { generatePdfFromUrl } = await import('../services/pdfService');
     const pdfBuffer = await generatePdfFromUrl(renderUrl);
 
-    // Cleanup temporary row
+    // Cleanup temporary row after PDF generation
     await pool.query('DELETE FROM resumes WHERE id = $1', [tempId]);
 
     res.setHeader("Content-Type", "application/pdf");
