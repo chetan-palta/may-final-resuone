@@ -15,7 +15,10 @@ export const Auth = () => {
   const [error, setError] = useState('');
 
   const handleGoogleLoginClick = () => {
-    window.location.href = `${API_URL}/api/auth/google`;
+    const authBaseUrl = API_URL || window.location.origin;
+    const authUrl = new URL('/api/auth/google', authBaseUrl);
+    authUrl.searchParams.set('returnTo', window.location.origin);
+    window.location.href = authUrl.toString();
   };
 
   const handleEmailAuth = async (e: React.FormEvent) => {

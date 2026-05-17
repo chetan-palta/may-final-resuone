@@ -23,10 +23,27 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://resuone.vercel.app'
-  ],
+  origin: (origin, callback) => {
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+
+    try {
+      const parsed = new URL(origin);
+      const isLocalhost = parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1';
+      const isProduction = parsed.origin === 'https://resuone.vercel.app';
+
+      if (isLocalhost || isProduction) {
+        callback(null, true);
+        return;
+      }
+    } catch {
+      // Fall through to rejection
+    }
+
+    callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
   credentials: true,
   exposedHeaders: ['X-Render-Url']
 }));

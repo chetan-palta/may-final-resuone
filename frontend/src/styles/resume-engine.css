@@ -1,0 +1,354 @@
+/**
+ * RESUME RENDERING ENGINE - GLOBAL STYLES
+ * 
+ * PURPOSE: Pixel-perfect A4 resume rendering
+ * - NO wrapper class required (styles applied directly)
+ * - NO Tailwind interference
+ * - Fixed dimensions, typography, spacing
+ * - Print-safe, export-safe
+ * 
+ * CONSTRAINTS:
+ * - Must render identically in browser and Puppeteer (backend)
+ * - A4: 210mm × 297mm fixed dimensions
+ * - Self-hosted ResumeSerif 11pt base font
+ * - All spacing in mm or pt (absolute units)
+ * - No responsive behavior
+ */
+
+/* NOTE: @font-face declarations moved to index.css (global scope) */
+
+/* RESET - Prevent Tailwind/global CSS interference on resume elements */
+.a4-container,
+.a4-container * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ============================================
+   A4 CONTAINER - Fixed Print Dimensions
+   ============================================ */
+
+.a4-container {
+  /* Fixed A4 sizing: pixel equivalent for screen preview and mm for print */
+  width: 794px;
+  min-height: 1123px;
+  width: 210mm;
+  min-height: 297mm;
+  background: #ffffff;
+  color: #000000;
+  position: relative;
+  margin: 0 auto;
+  overflow: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 
+              0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  
+  /* Print settings */
+  page-break-after: always;
+  
+  /* Ensure no responsive scaling - FORCE the font we specified globally */
+  font-size: 11pt;
+  font-family: 'ResumeSerif', serif !important;
+  line-height: 1.15;
+  letter-spacing: -0.3px;
+  word-spacing: -0.5px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================
+   RESUME PAPER - Printable Area
+   ============================================ */
+
+.resume-paper {
+  padding: 8mm 15mm;
+  /* Fixed content width = A4 width - horizontal padding */
+  width: 180mm;
+  width: 681px;
+  min-height: calc(1123px - 16mm);
+  font-family: 'ResumeSerif', serif !important;
+  font-size: 11pt;
+  line-height: 1.15;
+  color: #000000;
+  text-align: left;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: block;
+  letter-spacing: -0.3px;
+  word-spacing: -0.5px;
+}
+
+/* ============================================
+   HEADER SECTION
+   ============================================ */
+
+.resume-header {
+  text-align: center;
+  margin-bottom: 4mm;
+  flex-shrink: 0;
+}
+
+.resume-name {
+  font-family: 'ResumeSerif', serif !important;
+  font-size: 24pt;
+  font-weight: 700;
+  margin-bottom: 2mm;
+  margin-top: 0;
+  text-transform: uppercase;
+  color: #0b2239;
+  line-height: 1;
+  letter-spacing: -0.5pt;
+}
+
+.resume-contact {
+  font-size: 11pt;
+  margin-bottom: 0;
+  display: inline-flex;
+  justify-content: center;
+  gap: 6px;
+  line-height: 1.2;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
+.resume-contact span {
+  white-space: nowrap;
+  display: inline;
+  font-family: 'ResumeSerif', serif !important;
+}
+
+.resume-contact span:not(:last-child)::after {
+  content: ' |';
+  margin-left: 6px;
+}
+
+.resume-contact a {
+  color: #000000;
+  text-decoration: none;
+  font-family: 'ResumeSerif', serif !important;
+}
+
+/* ============================================
+   DIVIDER
+   ============================================ */
+
+.resume-divider {
+  border: none;
+  border-top: 1px solid #777777;
+  margin: 3mm 0;
+  height: 1px;
+  padding: 0;
+}
+
+/* ============================================
+   SECTIONS
+   ============================================ */
+
+.resume-section {
+  margin-bottom: 2.5mm;
+  flex-shrink: 0;
+}
+
+.resume-section-title {
+  font-size: 12pt;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-bottom: 1px solid #000000;
+  margin-bottom: 2mm;
+  padding-bottom: 1px;
+  color: #000000;
+  line-height: 1;
+  font-family: 'ResumeSerif', serif !important;
+}
+
+.resume-item {
+  margin-bottom: 1.5mm;
+  flex-shrink: 0;
+}
+
+.resume-summary {
+  text-align: justify;
+  margin-bottom: 0;
+  font-size: 11pt;
+  line-height: 1.15;
+  color: #000000;
+  font-family: 'ResumeSerif', serif !important;
+  letter-spacing: -0.3px;
+  word-spacing: -0.5px;
+}
+
+.resume-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 2px;
+  gap: 8px;
+  flex-wrap: nowrap;
+  font-family: 'ResumeSerif', serif !important;
+}
+
+.resume-item-title {
+  font-weight: bold;
+  font-size: 11pt;
+  display: inline-block;
+  font-family: 'ResumeSerif', serif !important;
+}
+
+.resume-item-subline {
+  font-size: 9.5pt;
+  font-style: italic;
+  margin-top: 0;
+  font-family: 'ResumeSerif', serif !important;
+}
+
+.resume-bullet {
+  font-size: 10pt;
+  margin-right: 4px;
+}
+
+.resume-sep {
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
+.resume-project-desc {
+  padding-left: 5.5mm;
+  font-family: 'ResumeSerif', serif !important;
+}
+
+.resume-role-line {
+  font-style: italic;
+  font-size: 9.5pt;
+  margin-top: 0;
+  font-family: 'ResumeSerif', serif !important;
+}
+
+.resume-item-desc {
+  margin-bottom: 2px;
+  font-family: 'ResumeSerif', serif !important;
+}
+
+.resume-item-subtitle {
+  font-style: italic;
+  font-size: 11pt;
+  color: #000000;
+  font-family: 'ResumeSerif', serif !important;
+}
+
+.resume-item-date {
+  font-size: 11pt;
+  white-space: nowrap;
+  color: #000000;
+  flex-shrink: 0;
+  font-family: 'ResumeSerif', serif !important;
+}
+
+/* ============================================
+   LISTS & BULLETS
+   ============================================ */
+
+.resume-list {
+  padding-left: 6mm;
+  margin-top: 2px;
+  margin-bottom: 0;
+  list-style-type: disc;
+  list-style-position: outside;
+  font-family: 'ResumeSerif', serif !important;
+}
+
+.resume-list li {
+  margin-bottom: 1px;
+  font-size: 10.5pt;
+  line-height: 1.15;
+  text-align: left;
+  color: #000000;
+  font-family: 'ResumeSerif', serif !important;
+  letter-spacing: -0.2px;
+  word-spacing: -0.4px;
+}
+
+/* ============================================
+   SKILLS SECTION
+   ============================================ */
+
+.resume-skills-group {
+  margin-bottom: 0;
+  display: block;
+}
+
+.resume-skill-row {
+  display: block;
+  margin-bottom: 1px;
+  font-size: 11pt;
+  line-height: 1.2;
+  font-family: 'ResumeSerif', serif !important;
+}
+
+.resume-skill-label {
+  font-weight: bold;
+  white-space: nowrap;
+  display: inline-block;
+  min-width: 80px;
+  font-family: 'ResumeSerif', serif !important;
+}
+
+.resume-skill-items {
+  font-size: 11pt;
+  color: #000000;
+  font-family: 'ResumeSerif', serif !important;
+}
+
+/* ============================================
+   LINKS - Print-safe styling
+   ============================================ */
+
+a {
+  color: #000000;
+  text-decoration: underline;
+}
+
+a:visited {
+  color: #000000;
+}
+
+/* ============================================
+   PRINT MEDIA RULES
+   ============================================ */
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  .a4-container {
+    width: 210mm;
+    min-height: 297mm;
+    box-shadow: none;
+    page-break-after: always;
+    margin: 0;
+    padding: 0;
+    font-family: 'ResumeSerif', serif !important;
+  }
+  .resume-paper {
+    padding: 8mm 15mm;
+    font-family: 'ResumeSerif', serif !important;
+  }
+  body {
+    font-family: 'ResumeSerif', serif !important;
+    background-color: white !important;
+  }
+}
+
+/* ============================================
+   PREVENT RESPONSIVE SCALING
+   ============================================ */
+
+/* No responsive scaling: keep fixed A4 dimensions */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

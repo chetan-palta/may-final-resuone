@@ -4,6 +4,40 @@ import bcrypt from 'bcrypt';
 import pool from '../config/db';
 import axios from 'axios';
 
+const LOCAL_HOSTNAMES = new Set(['localhost', '127.0.0.1']);
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '67693100136-4guqlhu2dodr82gngrueus53sii1cvod.apps.googleusercontent.com';
+
+const getBackendBaseUrl = (req: Request) => {
+  const forwardedProto = req.headers['x-forwarded-proto'];
+  const proto = typeof forwardedProto === 'string'
+    ? forwardedProto.split(',')[0].trim()
+    : req.protocol;
+  const host = req.get('host');
+  if (host) {
+    return `${proto}://${host}`;
+  }
+  return process.env.BASE_URL || 'http://localhost:5000';
+};
+
+const getAllowedFrontendOrigin = (value: unknown) => {
+  if (typeof value !== 'string' || !value) return null;
+
+  try {
+    const parsed = new URL(value);
+    const configuredFrontend = process.env.FRONTEND_URL;
+    const configuredHost = configuredFrontend ? new URL(configuredFrontend).hostname : null;
+    const hostname = parsed.hostname;
+
+    if (LOCAL_HOSTNAMES.has(hostname) || hostname === configuredHost) {
+      return parsed.origin;
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+};
+
 const generateToken = (userId: number | string, email: string, isAdmin: boolean = false) => {
   return jwt.sign({ id: userId, email, is_admin: isAdmin }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: '7d' });
 };
@@ -24,29 +58,34 @@ const setSessionCookie = (res: Response, token: string) => {
 
 export const googleAuthInitiate = (req: Request, res: Response) => {
   console.log('Google auth route hit');
-  const redirect_uri = `${process.env.BASE_URL}/api/auth/google/callback`;
+  const frontendOrigin = getAllowedFrontendOrigin(req.query.returnTo) || process.env.FRONTEND_URL || 'http://localhost:5173';
+  const backendBaseUrl = getBackendBaseUrl(req);
+  const redirect_uri = `${backendBaseUrl}/api/auth/google/callback`;
   const url = `https://accounts.google.com/o/oauth2/v2/auth?` +
-    `client_id=${process.env.GOOGLE_CLIENT_ID}` +
+    `client_id=${GOOGLE_CLIENT_ID}` +
     `&redirect_uri=${redirect_uri}` +
     `&response_type=code` +
     `&scope=profile email` +
+    `&state=${encodeURIComponent(frontendOrigin)}` +
     `&access_type=offline`;
   res.redirect(url);
 };
 
 export const googleAuthCallback = async (req: Request, res: Response) => {
   const code = req.query.code as string;
+  const frontendOrigin = getAllowedFrontendOrigin(req.query.state) || process.env.FRONTEND_URL || 'http://localhost:5173';
+  const backendBaseUrl = getBackendBaseUrl(req);
   if (!code) {
-    return res.redirect(`${process.env.FRONTEND_URL}/?error=google_auth_failed`);
+    return res.redirect(`${frontendOrigin}/?error=google_auth_failed`);
   }
   
   try {
     // Exchange code for tokens
     const tokenRes: any = await axios.post("https://oauth2.googleapis.com/token", {
       code,
-      client_id: process.env.GOOGLE_CLIENT_ID,
+      client_id: GOOGLE_CLIENT_ID,
       client_secret: process.env.GOOGLE_CLIENT_SECRET,
-      redirect_uri: `${process.env.BASE_URL}/api/auth/google/callback`,
+      redirect_uri: `${backendBaseUrl}/api/auth/google/callback`,
       grant_type: "authorization_code"
     });
 
@@ -76,10 +115,10 @@ export const googleAuthCallback = async (req: Request, res: Response) => {
     const token = generateToken(user.id, user.email, user.is_admin || false);
     setSessionCookie(res, token);
     
-    res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
+    res.redirect(`${frontendOrigin}/dashboard`);
   } catch (error) {
     console.error('Google callback error:', error);
-    res.redirect(`${process.env.FRONTEND_URL}/?error=google_auth_failed`);
+    res.redirect(`${frontendOrigin}/?error=google_auth_failed`);
   }
 };
 

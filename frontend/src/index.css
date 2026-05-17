@@ -1,3 +1,59 @@
+/* Import resume engine styles FIRST - MUST precede @tailwind */
+@import './styles/resume-engine.css';
+
+/* Global font definitions - MUST be at top level before any scoped CSS */
+@font-face {
+  font-family: 'ResumeSerif';
+  src: url('/fonts/LiberationSerif-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ResumeSerif';
+  src: url('/fonts/LiberationSerif-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ResumeSerif';
+  src: url('/fonts/LiberationSerif-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ResumeSerif';
+  src: url('/fonts/LiberationSerif-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Print CSS - Ensure PDF respects A4 dimensions and fonts */
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  body {
+    font-family: 'ResumeSerif', serif;
+    margin: 0;
+    padding: 0;
+  }
+  .a4-container {
+    width: 210mm;
+    height: 297mm;
+    margin: 0;
+    padding: 0;
+  }
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -84,7 +140,7 @@
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-serif: 'Times New Roman', Times, serif;
+  --font-serif: 'ResumeSerif', serif;
 }
 
 .dark {
@@ -506,13 +562,13 @@ textarea.input-field {
 /* The actual printable area */
 .resume-paper {
   padding: 10mm 15mm;
-  width: 100%;
-  height: 100%;
+  width: 180mm;
+  width: 681px;
+  min-height: calc(1123px - 20mm);
   font-family: var(--font-serif);
   color: black;
   font-size: 11pt;
-  /* Strict font size, 11pt is optimal for reading */
-  line-height: 1.4;
+  line-height: 1.2;
   box-sizing: border-box;
 }
 
@@ -522,7 +578,7 @@ textarea.input-field {
 }
 
 .resume-name {
-  font-family: 'Times New Roman', serif;
+  font-family: var(--font-serif);
   font-size: 24pt;
   font-weight: 700;
   margin-bottom: 2mm;
@@ -534,10 +590,10 @@ textarea.input-field {
 .resume-contact {
   font-size: 11pt;
   margin-bottom: 2px;
-  display: flex;
+  display: inline-flex;
   justify-content: center;
   gap: 6px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .resume-contact a {
@@ -580,6 +636,7 @@ textarea.input-field {
   justify-content: space-between;
   align-items: baseline;
   margin-bottom: 2px;
+  flex-wrap: nowrap;
 }
 
 .resume-item-title {
@@ -600,27 +657,17 @@ textarea.input-field {
 .resume-list {
   padding-left: 6mm;
   margin-top: 2px;
-  list-style-type: disc;
+  list-style: none;
+  padding-left: 0;
 }
 
 .resume-list li {
   margin-bottom: 2px;
   text-align: left;
   font-size: 10.5pt;
-  /* Use flex to keep bullet aligned with baseline and preserve wrapping */
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
   white-space: normal;
 }
 
-/* Remove default markers so we control bullets explicitly */
-.resume-list {
-  list-style: none;
-  padding-left: 0;
-}
-
-/* Use a hollow bullet rendered via pseudo-element for consistent alignment */
 .resume-list li::before {
   content: '◦';
   display: inline-block;
@@ -638,13 +685,13 @@ textarea.input-field {
 
 .resume-skills-group {
   margin-bottom: 2px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0 8px;
+  display: block;
 }
 
 .resume-skill-label {
   font-weight: bold;
+  display: inline-block;
+  min-width: 100px;
 }
 
 /* AI Feedback Panel */

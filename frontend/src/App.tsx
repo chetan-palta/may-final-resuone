@@ -64,68 +64,25 @@ const MainApp = () => {
         // Automatically save on export if logged in and managing a resume
         await axios.post(`${API_URL}/api/resumes`, data, { withCredentials: true });
       }
-      // CLIENT-SIDE EXPORT: Capture exact preview DOM and generate PDF from it
-      // Ensure fonts are loaded to prevent fallback during capture
+      // SERVER-SIDE EXPORT: ask backend to render the frontend render route via Puppeteer
       try {
-        await document.fonts.load('16px "Times New Roman"');
-        await (document as any).fonts.ready;
-      } catch (e) {
-        // ignore font load failure; proceed
+        const resp = await axios.post(`${API_URL}/api/resumes/export-direct`, data, { responseType: 'arraybuffer' });
+        const blob = new Blob([resp.data], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${data.personalDetails.fullName.replace(/\s+/g, '_') || 'resume'}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+
+        // Clear saved data after successful export
+        clearSavedData();
+      } catch (err) {
+        console.error('Server-side export failed', err);
+        throw err;
       }
-
-      const previewEl = document.getElementById('resume-preview');
-      if (!previewEl) throw new Error('Resume preview not available for export');
-
-      // Freeze dimensions and styles to avoid reflow during capture
-      const prevWidth = (previewEl as HTMLElement).style.width || '';
-      const prevMinHeight = (previewEl as HTMLElement).style.minHeight || '';
-      (previewEl as HTMLElement).style.width = '794px';
-      (previewEl as HTMLElement).style.minHeight = '1123px';
-      (previewEl as HTMLElement).classList.add('export-lock');
-
-      // Allow the browser a tick to apply styles
-      await new Promise(res => setTimeout(res, 120));
-
-      const html2canvasModule = (await import('html2canvas')).default;
-      const jspdfModule = await import('jspdf');
-
-      const canvas = await html2canvasModule(previewEl as HTMLElement, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        windowWidth: (previewEl as HTMLElement).scrollWidth,
-        windowHeight: (previewEl as HTMLElement).scrollHeight
-      });
-
-      const imgData = canvas.toDataURL('image/png');
-      const { jsPDF } = jspdfModule;
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'px',
-        format: [794, 1123]
-      });
-
-      const imgWidth = 794;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      let position = 0;
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      while (position + 1123 < imgHeight) {
-        position += 1123;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, -position, imgWidth, imgHeight);
-      }
-
-      pdf.save(`${data.personalDetails.fullName.replace(/\s+/g, '_') || 'resume'}.pdf`);
-
-      // cleanup
-      (previewEl as HTMLElement).classList.remove('export-lock');
-      (previewEl as HTMLElement).style.width = prevWidth;
-      (previewEl as HTMLElement).style.minHeight = prevMinHeight;
-
-      // Clear saved data after successful export
-      clearSavedData();
     } catch (error) {
       console.error(error);
       alert('Failed to export PDF.');
@@ -246,7 +203,7 @@ const RenderRoute = () => {
   useEffect(() => {
     const fetchResume = async () => {
       try {
-        const base = (typeof API_URL !== 'undefined' && API_URL) ? API_URL : '';
+        const base = import.meta.env.DEV ? 'http://localhost:5000' : ((typeof API_URL !== 'undefined' && API_URL) ? API_URL : '');
         const res = await fetch(`${base}/api/resumes/${id}`, {
           credentials: 'include',
         });

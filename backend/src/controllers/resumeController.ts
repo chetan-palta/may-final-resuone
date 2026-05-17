@@ -133,8 +133,16 @@ export const getResumePdf = async (req: Request, res: Response) => {
       extraCurricular: dbData.extra_curricular || []
     };
 
-    // Generate PDF buffer using server-side template
-    const pdfBuffer = await generatePdf(resumeData as any);
+    // Prefer generating PDF from the frontend render route so the preview and export
+    // use the exact same HTML/CSS/assets (fonts served by frontend).
+    // In development or debug mode, always point to local frontend to avoid using
+    // a deployed production site which may have different assets/styles.
+    const frontendUrl = (process.env.NODE_ENV === 'production' && process.env.FRONTEND_URL)
+      ? process.env.FRONTEND_URL
+      : 'http://localhost:5173';
+    const renderUrl = `${frontendUrl}/render/${id}`;
+    const { generatePdfFromUrl } = await import('../services/pdfService');
+    const pdfBuffer = await generatePdfFromUrl(renderUrl);
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Length", pdfBuffer.length.toString());
@@ -170,8 +178,15 @@ export const exportDirect = async (req: Request, res: Response) => {
       }
     }
 
-    // Determine frontend URL from env or default
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    // Determine frontend URL from env or default.
+    // If debug flag is set, force local frontend so exports render against the
+    // running dev preview (avoids hitting deployed production frontend).
+    let frontendUrl = (process.env.NODE_ENV === 'production' && process.env.FRONTEND_URL)
+      ? process.env.FRONTEND_URL
+      : 'http://localhost:5173';
+    if (debug) {
+      frontendUrl = 'http://localhost:5173';
+    }
     const renderUrl = `${frontendUrl}/render/${tempId}`;
 
     // If debug flag is set, return the render URL and keep the temp data for inspection (no PDF generation)

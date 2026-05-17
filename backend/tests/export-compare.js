@@ -1,6 +1,11 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 
+const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH
+  || process.env.CHROME_PATH
+  || process.env.PUPPETEER_CHROME_PATH
+  || 'C:/Program Files/Google/Chrome/Application/chrome.exe';
+
 (async () => {
   // Auto-detect frontend port by probing common Vite ports
   let frontendUrl = null;
@@ -20,15 +25,24 @@ const fs = require('fs');
   }
   const url = frontendUrl + '/preview-test';
   console.log('Launching browser...');
-  const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+  const browser = await puppeteer.launch({ executablePath, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
   const page = await browser.newPage();
   // Match html2canvas scale=2 by using deviceScaleFactor 2 for screenshots
   await page.setViewport({ width: 1200, height: 1600, deviceScaleFactor: 2 });
   console.log('Opening page', url);
   await page.goto(url, { waitUntil: 'networkidle2' });
 
-  // Wait for preview element (use class in case id isn't present immediately)
-  await page.waitForSelector('.a4-container, #resume-preview', { timeout: 30000 });
+  // Debug: check what's on the page
+  const bodyContent = await page.content();
+  const hasPreview = bodyContent.includes('resume-preview') || bodyContent.includes('a4-container');
+  console.log(`[DEBUG] Page has preview element: ${hasPreview}`);
+  
+  // Wait for preview element with increased timeout
+  await page.waitForSelector('#resume-preview', { timeout: 60000 }).catch(async () => {
+    console.log('[DEBUG] #resume-preview not found, trying .a4-container');
+    await page.waitForSelector('.a4-container', { timeout: 30000 });
+  });
+  
   const el = await page.$('#resume-preview') || await page.$('.a4-container');
   if (!el) {
     console.error('Preview element not found');

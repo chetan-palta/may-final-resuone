@@ -11,32 +11,33 @@ export const renderHtml = (data: ResumeData): string => {
   };
 
   const style = `
-    :root {
-      --font-serif: 'Times New Roman', Times, serif;
-    }
+    @font-face { font-family: 'ResumeSerif'; src: url('/fonts/LiberationSerif-Regular.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'ResumeSerif'; src: url('/fonts/LiberationSerif-Bold.ttf') format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
+    :root { --font-serif: 'ResumeSerif', serif; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; }
-    .a4-container { width: 210mm; background: white; margin: 0 auto; }
-    .resume-paper { padding: 8mm 15mm; width: 100%; font-family: var(--font-serif); color: black; font-size: 11pt; line-height: 1.2; box-sizing: border-box; }
+    body { font-family: var(--font-serif); background: white; }
+    .a4-container { width: 794px; min-height: 1123px; width: 210mm; min-height: 297mm; margin: 0 auto; background: #ffffff; font-size: 11pt; line-height: 1.15; letter-spacing: -0.3px; word-spacing: -0.5px; }
+    .resume-paper { padding: 8mm 15mm; width: 180mm; width: 681px; min-height: calc(1123px - 16mm); font-family: var(--font-serif); color: black; font-size: 11pt; line-height: 1.15; letter-spacing: -0.3px; word-spacing: -0.5px; box-sizing: border-box; }
     .resume-header { text-align: center; margin-bottom: 3mm; }
-    .resume-name { font-family: 'Times New Roman', serif; font-size: 24pt; font-weight: 700; margin-bottom: 2mm; text-transform: uppercase; color: #0b2239; }
-    .resume-contact { font-size: 11pt; margin-bottom: 2px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+    .resume-name { font-family: var(--font-serif); font-size: 24pt; font-weight: 700; margin-bottom: 2mm; text-transform: uppercase; color: #0b2239; }
+    .resume-contact { font-size: 11pt; margin-bottom: 2px; display: inline-flex; justify-content: center; gap: 8px; flex-wrap: nowrap; }
     .resume-contact span { border-right: 1px solid #777; padding-right: 8px; margin-right: 0; }
     .resume-contact span:last-child { border-right: none; }
     .resume-contact a { color: black; text-decoration: none; }
-    .resume-section { margin-bottom: 2mm; }
+    .resume-section { margin-bottom: 2.5mm; }
     .resume-section-title { font-size: 12pt; font-weight: bold; text-transform: uppercase; border-bottom: 1px solid black; margin-bottom: 1.5mm; padding-bottom: 1px; color: #000; }
     .resume-item { margin-bottom: 1.5mm; }
-    .resume-summary { text-align: justify; margin-bottom: 2.5mm; }
-    .resume-item-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; }
-    .resume-item-title { font-weight: bold; font-size: 11pt; }
+    .resume-summary { text-align: justify; margin-bottom: 2.5mm; line-height: 1.15; letter-spacing: -0.3px; word-spacing: -0.5px; }
+    .resume-item-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; flex-wrap: nowrap; }
+    .resume-item-title { font-weight: bold; font-size: 11pt; display: inline-block; }
     .resume-item-subtitle { font-style: italic; font-size: 11pt; }
     .resume-item-date { font-size: 11pt; white-space: nowrap; }
     .resume-list { padding-left: 6mm; margin-top: 1px; list-style-type: disc; }
     .resume-list li { margin-bottom: 1px; text-align: justify; }
-    .resume-skills-group { margin-bottom: 1px; display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
-    .resume-skill-row { margin-bottom: 1px; display: flex; align-items: flex-start; }
+    .resume-skills-group { margin-bottom: 1px; display: block; }
+    .resume-skill-row { margin-bottom: 1px; display: block; }
     .resume-skill-row b { min-width: 100px; display: inline-block; }
+    @page { size: A4; margin: 0 }
   `;
 
   const html = `
