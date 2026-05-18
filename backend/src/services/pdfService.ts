@@ -3,20 +3,22 @@ import { renderHtml } from "../utils/template";
 import { ResumeData } from "../types/resume";
 
 const getExecutablePath = (): string | undefined => {
-  return process.env.PUPPETEER_EXECUTABLE_PATH
-    || process.env.CHROME_PATH
-    || process.env.PUPPETEER_CHROME_PATH
-    || "C:/Program Files/Google/Chrome/Application/chrome.exe";
+  // Allow an explicit override via env in dev only. Do NOT hardcode OS-specific paths.
+  // In production, undefined lets puppeteer use its bundled Chromium.
+  return process.env.PUPPETEER_EXECUTABLE_PATH || process.env.CHROME_PATH || process.env.PUPPETEER_CHROME_PATH || undefined;
 };
 
 export const generatePdf = async (data: ResumeData): Promise<Buffer> => {
   let browser;
 
   try {
+    // Launch with environment-aware config. Do not ship hardcoded Windows paths.
+    const execPath = getExecutablePath();
+    const launchArgs = ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"];
     browser = await puppeteer.launch({
       headless: true,
-      executablePath: getExecutablePath(),
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      ...(execPath ? { executablePath: execPath } : {}),
+      args: launchArgs,
     });
 
     const page = await browser.newPage();
@@ -58,10 +60,12 @@ export const generatePdf = async (data: ResumeData): Promise<Buffer> => {
 export const generatePdfFromUrl = async (url: string): Promise<Buffer> => {
   let browser;
   try {
+    const execPath2 = getExecutablePath();
+    const launchArgs2 = ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"];
     browser = await puppeteer.launch({
       headless: true,
-      executablePath: getExecutablePath(),
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      ...(execPath2 ? { executablePath: execPath2 } : {}),
+      args: launchArgs2,
     });
 
     const page = await browser.newPage();
