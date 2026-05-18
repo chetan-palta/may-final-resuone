@@ -31,8 +31,6 @@
 
 .a4-container {
   /* Fixed A4 sizing: pixel equivalent for screen preview and mm for print */
-  width: 794px;
-  min-height: 1123px;
   width: 210mm;
   min-height: 297mm;
   background: #ffffff;
@@ -61,10 +59,9 @@
    ============================================ */
 
 .resume-paper {
-  padding: 8mm 15mm;
-  /* Fixed content width = A4 width - horizontal padding */
+  padding: 8mm 0;
+  /* Fixed content width = A4 width minus horizontal page margins */
   width: 180mm;
-  width: 681px;
   min-height: calc(1123px - 16mm);
   font-family: 'ResumeSerif', serif !important;
   font-size: 11pt;
@@ -317,7 +314,7 @@ a:visited {
 
 @page {
   size: A4;
-  margin: 0;
+  margin: 15mm;
 }
 
 @media print {
