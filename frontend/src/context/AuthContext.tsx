@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import axios from 'axios';
-import { API_URL } from '../config';
+import { API_URL, IS_DEV_MODE, DEV_MOCK_USER } from '../config';
 
 axios.defaults.withCredentials = true;
 
@@ -48,7 +48,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const fetchSession = async () => {
       try {
-        await refreshSession();
+        // In dev mode on localhost, auto-inject mock user
+        if (IS_DEV_MODE) {
+          console.log('[DEV MODE] Auto-loading mock user for local testing');
+          setUser(DEV_MOCK_USER);
+        } else {
+          await refreshSession();
+        }
       } finally {
         setLoading(false);
       }

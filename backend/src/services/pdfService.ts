@@ -98,20 +98,13 @@ export const generatePdfFromUrl = async (url: string): Promise<Buffer> => {
         // Set viewport to the container size so layout matches the preview
         await page.setViewport({ width: Math.ceil(box.width), height: Math.ceil(box.height), deviceScaleFactor: 1 });
 
-        // Generate PDF clipped to the container box to avoid extra page margins
+        // Generate PDF sized to the container box to match preview layout
         const pdfBuffer = await page.pdf({
           printBackground: true,
           preferCSSPageSize: false,
           margin: { top: '0mm', right: '0mm', bottom: '0mm', left: '0mm' },
           width: `${Math.ceil(box.width)}px`,
-          height: `${Math.ceil(box.height)}px`,
-          // Use clip to ensure exact pixel area is exported
-          clip: {
-            x: Math.floor(box.x),
-            y: Math.floor(box.y),
-            width: Math.ceil(box.width),
-            height: Math.ceil(box.height)
-          }
+          height: `${Math.ceil(box.height)}px`
         });
 
         await browser.close();

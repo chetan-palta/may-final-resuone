@@ -178,6 +178,11 @@ export const getSession = async (req: Request, res: Response) => {
   const authReq = req as any;
   if (!authReq.user) return res.status(401).json({ error: 'Not authenticated' });
   
+  // In dev mode, return the dev user immediately
+  if (authReq.user.email === 'dev@localhost') {
+    return res.json({ user: authReq.user });
+  }
+
   try {
     const { rows }: any = await pool.query('SELECT id, email, name, avatar FROM users WHERE id = $1', [authReq.user.id]);
     if (rows.length === 0) return res.status(404).json({ error: 'User not found' });

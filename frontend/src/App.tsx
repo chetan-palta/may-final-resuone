@@ -11,6 +11,7 @@ import { Auth } from './components/Auth';
 import { Dashboard } from './components/Dashboard';
 import { Admin } from './components/Admin';
 import { useAuth } from './context/AuthContext';
+import { IS_DEV_MODE } from './config';
 import axios from 'axios';
 import { API_URL } from './config';
 
@@ -251,6 +252,11 @@ function App() {
       return <div className="p-8 text-center text-gray-600">Loading session...</div>;
     }
 
+    // In dev mode, allow access without requiring authentication
+    if (IS_DEV_MODE) {
+      return <>{children}</>;
+    }
+
     if (!user) {
       return <Navigate to="/auth" replace />;
     }
@@ -263,6 +269,11 @@ function App() {
 
     if (loading) {
       return <div className="p-8 text-center text-gray-600">Loading session...</div>;
+    }
+
+    // In dev mode, allow access without requiring authentication
+    if (IS_DEV_MODE) {
+      return <>{children}</>;
     }
 
     if (!user) {
