@@ -18,18 +18,18 @@ export const renderHtml = (data: ResumeData): string => {
     body { font-family: var(--font-serif); background: white; }
     .a4-container { width: 210mm; min-height: 297mm; margin: 0 auto; background: #ffffff; font-size: 11pt; line-height: 1.15; letter-spacing: -0.3px; word-spacing: -0.5px; }
     .resume-paper { padding: 8mm 0; width: 180mm; min-height: calc(1123px - 16mm); font-family: var(--font-serif); color: black; font-size: 11pt; line-height: 1.15; letter-spacing: -0.3px; word-spacing: -0.5px; box-sizing: border-box; }
-    .resume-header { text-align: center; margin-bottom: 3mm; }
+    .resume-header { text-align: center; margin-bottom: 3mm; width: 100%; box-sizing: border-box; }
     .resume-name { font-family: var(--font-serif); font-size: 24pt; font-weight: 700; margin-bottom: 2mm; text-transform: uppercase; color: #0b2239; }
-    .resume-contact { font-size: 11pt; margin-bottom: 2px; display: inline-flex; justify-content: center; gap: 8px; flex-wrap: nowrap; }
-    .resume-contact span { border-right: 1px solid #777; padding-right: 8px; margin-right: 0; }
+    .resume-contact { font-size: 10.5pt; margin-bottom: 2px; display: flex; justify-content: center; flex-wrap: wrap; gap: 2px; max-width: 180mm; }
+    .resume-contact span { border-right: 1px solid #777; padding-right: 4px; margin-right: 2px; }
     .resume-contact span:last-child { border-right: none; }
     .resume-contact a { color: black; text-decoration: none; }
     .resume-section { margin-bottom: 2.5mm; }
     .resume-section-title { font-size: 12pt; font-weight: bold; text-transform: uppercase; border-bottom: 1px solid black; margin-bottom: 1.5mm; padding-bottom: 1px; color: #000; }
     .resume-item { margin-bottom: 1.5mm; }
     .resume-summary { text-align: justify; margin-bottom: 2.5mm; line-height: 1.15; letter-spacing: -0.3px; word-spacing: -0.5px; }
-    .resume-item-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; flex-wrap: nowrap; }
-    .resume-item-title { font-weight: bold; font-size: 11pt; display: inline-block; }
+    .resume-item-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; flex-wrap: nowrap; gap: 4px; }
+    .resume-item-title { font-weight: bold; font-size: 11pt; display: block; min-width: 0; flex: 1; word-break: break-word; overflow-wrap: break-word; }
     .resume-item-subtitle { font-style: italic; font-size: 11pt; }
     .resume-item-date { font-size: 11pt; white-space: nowrap; }
     .resume-list { padding-left: 6mm; margin-top: 1px; list-style-type: disc; }
