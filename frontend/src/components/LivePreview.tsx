@@ -17,7 +17,7 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ data }) => {
   const { personalDetails, summary, education, skills, projects, experience, extraCurricular, certifications = [] } = data;
 
   return (
-    <div id="resume-preview" className="a4-container">
+    <div id="resume-preview" className="a4-container" style={{ border: '3px solid red' }}>
       {/* Header Section */}
       <div className="resume-header">
         <div className="resume-name">{personalDetails.fullName || 'FIRST NAME LAST NAME'}</div>
@@ -58,7 +58,7 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ data }) => {
       </div>
 
       {/* EXPORT_RENDERER_VERIFIED: This is the actual PDF export renderer */}
-      <div className="resume-paper" style={{ lineHeight: '1.2' }}>
+      <div className="resume-paper" style={{ lineHeight: '1.2', border: '2px dashed #0066ff' }}>
         
         {/* Summary */}
         {summary && (
@@ -74,7 +74,7 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ data }) => {
             <div className="resume-section-title">Education</div>
             {education.map(edu => (
               <div key={edu.id} className="resume-item" style={{ marginBottom: '1mm' }}>
-                <div className="resume-item-header">
+                <div className="resume-item-header" style={{ border: '1px dashed #00a86b' }}>
                   <span className="resume-item-title">{edu.degree}</span>
                   <span className="resume-item-date">{edu.startDate} – {edu.endDate}</span>
                 </div>

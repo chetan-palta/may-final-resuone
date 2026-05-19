@@ -48,7 +48,7 @@ export const Dashboard = () => {
     if (resumes.length >= 5) return;
     // Clear saved data so form starts empty
     clearSavedData();
-    navigate('/resume');
+    navigate('/resume?new=1');
   };
 
   const handleEdit = async (id: string) => {

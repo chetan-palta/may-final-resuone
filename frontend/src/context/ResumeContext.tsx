@@ -5,6 +5,34 @@ import { v4 as uuidv4 } from 'uuid';
 import { API_URL } from '../config';
 
 const STORAGE_KEY = 'resuone_form_data';
+const DRAFT_MODE_KEY = 'resuone_resume_mode';
+
+const createFreshResumeData = (overrides: Partial<ResumeData> = {}): ResumeData => ({
+  personalDetails: {
+    fullName: '',
+    email: '',
+    phone: '',
+    linkedin: '',
+    github: '',
+    leetcode: '',
+    portfolio: '',
+    location: '',
+    customLinks: []
+  },
+  summary: '',
+  education: [
+    { id: uuidv4(), degree: '', institution: '', location: '', scoreType: 'CGPA (out of 10)', score: '', startDate: '', endDate: '' }
+  ],
+  skills: [
+    { id: uuidv4(), name: 'Languages', items: '' },
+    { id: uuidv4(), name: 'Technologies', items: '' }
+  ],
+  projects: [],
+  experience: [],
+  extraCurricular: [''],
+  certifications: [],
+  ...overrides
+});
 
 export interface AISuggestion {
   section: 'projects' | 'experience';
@@ -57,31 +85,7 @@ interface ResumeContextType {
   setResumeData: (data: ResumeData) => void;
 }
 
-const defaultData: ResumeData = {
-  personalDetails: {
-    fullName: '',
-    email: '',
-    phone: '',
-    linkedin: '',
-    github: '',
-    leetcode: '',
-    portfolio: '',
-    location: '',
-    customLinks: []
-  },
-  summary: '',
-  education: [
-    { id: uuidv4(), degree: '', institution: '', location: '', scoreType: 'CGPA (out of 10)', score: '', startDate: '', endDate: '' }
-  ],
-  skills: [
-    { id: uuidv4(), name: 'Languages', items: '' },
-    { id: uuidv4(), name: 'Technologies', items: '' }
-  ],
-  projects: [],
-  experience: [],
-  extraCurricular: [''],
-  certifications: []
-};
+const defaultData: ResumeData = createFreshResumeData();
 
 /** Load saved form data from localStorage, falling back to defaults */
 const loadSavedData = (): ResumeData => {
@@ -155,39 +159,22 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
   }, [data]);
 
+  useEffect(() => {
+    if (data.id && data.isNewResume) {
+      setData(prev => ({ ...prev, isNewResume: false }));
+      localStorage.setItem(DRAFT_MODE_KEY, 'saved');
+    }
+  }, [data.id, data.isNewResume]);
+
   const clearSavedData = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
-    // Create fresh default data with new UUIDs
-    const freshDefaultData: ResumeData = {
-      personalDetails: {
-        fullName: '',
-        email: '',
-        phone: '',
-        linkedin: '',
-        github: '',
-        leetcode: '',
-        portfolio: '',
-        location: '',
-        customLinks: []
-      },
-      summary: '',
-      education: [
-        { id: uuidv4(), degree: '', institution: '', location: '', scoreType: 'CGPA (out of 10)', score: '', startDate: '', endDate: '' }
-      ],
-      skills: [
-        { id: uuidv4(), name: 'Languages', items: '' },
-        { id: uuidv4(), name: 'Technologies', items: '' }
-      ],
-      projects: [],
-      experience: [],
-      extraCurricular: [''],
-      certifications: []
-    };
-    setData(freshDefaultData);
+    localStorage.setItem(DRAFT_MODE_KEY, 'new');
+    setData(createFreshResumeData({ draftId: uuidv4(), isNewResume: true }));
   }, []);
 
   const setResumeData = (newData: ResumeData) => {
-    setData(newData);
+    localStorage.setItem(DRAFT_MODE_KEY, newData.id ? 'saved' : (newData.isNewResume ? 'new' : 'saved'));
+    setData({ ...newData, isNewResume: false });
   };
 
   const updatePersonalDetails = (field: string, value: string) => {

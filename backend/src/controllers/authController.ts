@@ -42,6 +42,26 @@ const generateToken = (userId: number | string, email: string, isAdmin: boolean 
   return jwt.sign({ id: userId, email, is_admin: isAdmin }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: '7d' });
 };
 
+const DEMO_ADMIN_EMAIL = 'admin@resuone.com';
+const DEMO_ADMIN_PASSWORD = 'Demo@123';
+
+const ensureDemoAdmin = async () => {
+  const demoHash = await bcrypt.hash(DEMO_ADMIN_PASSWORD, 10);
+  const { rows }: any = await pool.query('SELECT * FROM users WHERE email = $1', [DEMO_ADMIN_EMAIL]);
+
+  if (rows.length === 0) {
+    const { rows: inserted }: any = await pool.query(
+      'INSERT INTO users (email, name, password_hash, is_admin) VALUES ($1, $2, $3, $4) RETURNING id, is_admin',
+      [DEMO_ADMIN_EMAIL, 'ResuOne Admin', demoHash, true]
+    );
+    return { id: inserted[0].id, email: DEMO_ADMIN_EMAIL, name: 'ResuOne Admin', is_admin: inserted[0].is_admin || true };
+  }
+
+  const user = rows[0];
+  await pool.query('UPDATE users SET password_hash = $1, is_admin = TRUE WHERE email = $2', [demoHash, DEMO_ADMIN_EMAIL]);
+  return { id: user.id, email: user.email, name: user.name || 'ResuOne Admin', is_admin: true };
+};
+
 const setSessionCookie = (res: Response, token: string) => {
   res.cookie('auth_token', token, {
     httpOnly: true,
@@ -152,6 +172,18 @@ export const register = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+
+  if (email === DEMO_ADMIN_EMAIL && password === DEMO_ADMIN_PASSWORD) {
+    try {
+      const demoUser = await ensureDemoAdmin();
+      const token = generateToken(demoUser.id, demoUser.email, true);
+      setSessionCookie(res, token);
+      return res.json({ user: { id: demoUser.id, email: demoUser.email, name: demoUser.name, avatar: null } });
+    } catch (error) {
+      console.error('Demo login error:', error);
+      return res.status(500).json({ error: 'Demo login failed' });
+    }
+  }
 
   try {
     const { rows }: any = await pool.query('SELECT * FROM users WHERE email = $1', [email]);

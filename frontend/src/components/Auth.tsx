@@ -21,6 +21,27 @@ export const Auth = () => {
     window.location.href = authUrl.toString();
   };
 
+  const handleDemoLoginClick = async () => {
+    setIsLogin(true);
+    setEmail('admin@resuone.com');
+    setPassword('Demo@123');
+    setError('');
+
+    try {
+      const res = await axios.post(`${API_URL}/api/auth/login`, {
+        email: 'admin@resuone.com',
+        password: 'Demo@123'
+      }, {
+        withCredentials: true,
+      });
+      login(res.data.user);
+      await refreshSession();
+      navigate('/admin');
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Demo login failed');
+    }
+  };
+
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -173,6 +194,18 @@ export const Auth = () => {
             </svg>
             Sign {isLogin ? 'in' : 'up'} with Google
           </button>
+
+          <button
+            type="button"
+            onClick={handleDemoLoginClick}
+            className="mt-3 w-full px-6 py-3 rounded-xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-200 font-bold hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-all duration-300"
+          >
+            Use Demo Admin Login
+          </button>
+
+          <p className="mt-3 text-xs text-slate-500 dark:text-slate-400 text-center">
+            Demo credentials: admin@resuone.com / Demo@123
+          </p>
 
           {/* Toggle Auth Mode */}
           <div className="mt-6 text-center">

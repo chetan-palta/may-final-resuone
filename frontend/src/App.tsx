@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { BrowserRouter as Router, Routes, Route, useParams, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useParams, Navigate, useLocation } from 'react-router-dom';
 import { FileText, Download } from 'lucide-react';
 import { useResume } from './context/ResumeContext';
 import { LivePreview } from './components/LivePreview';
@@ -23,9 +23,11 @@ const MainApp = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [autoLoaded, setAutoLoaded] = useState(false);
+  const location = useLocation();
+  const isNewResumeMode = data.isNewResume || new URLSearchParams(location.search).get('new') === '1';
 
   useEffect(() => {
-    if (user && !data.id && !autoLoaded) {
+    if (user && !data.id && !isNewResumeMode && !autoLoaded) {
       axios.get(`${API_URL}/api/resume/user`, { withCredentials: true })
         .then(res => {
           if (res.data && res.data.id) {
@@ -35,7 +37,7 @@ const MainApp = () => {
         })
         .catch(() => setAutoLoaded(true));
     }
-  }, [user, data.id, autoLoaded, setResumeData]);
+  }, [user, data.id, autoLoaded, setResumeData, isNewResumeMode]);
 
   const validateExtraCurricular = () => {
     for (let i = 0; i < data.extraCurricular.length; i++) {
@@ -61,7 +63,7 @@ const MainApp = () => {
     if (!validateExtraCurricular()) return;
     setIsExporting(true);
     try {
-      if (data.id) {
+      if (data.id && !data.isNewResume) {
         // Automatically save on export if logged in and managing a resume
         await axios.post(`${API_URL}/api/resumes`, data, { withCredentials: true });
       }
@@ -104,12 +106,13 @@ const MainApp = () => {
       }
       
       const payload = { ...data, resumeName: customName };
-      const endpoint = data.id ? '/api/resume/update' : '/api/resume/save';
-      const method = data.id ? axios.put : axios.post;
+      const shouldUpdate = Boolean(data.id && !data.isNewResume);
+      const endpoint = shouldUpdate ? '/api/resume/update' : '/api/resume/save';
+      const method = shouldUpdate ? axios.put : axios.post;
       const response = await method(`${API_URL}${endpoint}`, payload, { withCredentials: true });
       
       if (response.data.id) {
-        setResumeData({ ...payload, id: response.data.id });
+        setResumeData({ ...payload, id: response.data.id, isNewResume: false, draftId: undefined });
       } else {
         setResumeData(payload);
       }
