@@ -82,6 +82,8 @@
 .resume-header {
   text-align: center;
   margin-bottom: 4mm;
+  width: 100%;
+  box-sizing: border-box;
   flex-shrink: 0;
 }
 
@@ -98,20 +100,23 @@
 }
 
 .resume-contact {
-  font-size: 11pt;
+  font-size: 10.5pt;
   margin-bottom: 0;
-  display: inline-flex;
+  display: flex;
   justify-content: center;
-  gap: 6px;
+  flex-wrap: wrap;
+  gap: 2px;
   line-height: 1.2;
-  flex-wrap: nowrap;
   flex-shrink: 0;
+  max-width: 100%;
 }
 
 .resume-contact span {
   white-space: nowrap;
   display: inline;
   font-family: 'ResumeSerif', serif !important;
+  padding-right: 4px;
+  margin-right: 2px;
 }
 
 .resume-contact span:not(:last-child)::after {
@@ -179,7 +184,7 @@
   justify-content: space-between;
   align-items: baseline;
   margin-bottom: 2px;
-  gap: 8px;
+  gap: 4px;
   flex-wrap: nowrap;
   font-family: 'ResumeSerif', serif !important;
 }
@@ -187,7 +192,11 @@
 .resume-item-title {
   font-weight: bold;
   font-size: 11pt;
-  display: inline-block;
+  display: block;
+  min-width: 0;
+  flex: 1;
+  word-break: break-word;
+  overflow-wrap: break-word;
   font-family: 'ResumeSerif', serif !important;
 }
 
