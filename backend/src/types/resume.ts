@@ -59,6 +59,9 @@ export interface Certification {
 
 export interface ResumeData {
   id?: string;
+  draftId?: string;
+  isNewResume?: boolean;
+  resumeName?: string;
   personalDetails: PersonalDetails;
   summary: string;
   education: Education[];

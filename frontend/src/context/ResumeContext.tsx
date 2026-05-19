@@ -174,7 +174,7 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const setResumeData = (newData: ResumeData) => {
     localStorage.setItem(DRAFT_MODE_KEY, newData.id ? 'saved' : (newData.isNewResume ? 'new' : 'saved'));
-    setData({ ...newData, isNewResume: false });
+    setData({ ...newData, isNewResume: newData.isNewResume ?? false });
   };
 
   const updatePersonalDetails = (field: string, value: string) => {

@@ -326,7 +326,7 @@ export const Home = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
             {/* Animated Gradient Line */}
-            <div className="hidden lg:block absolute top-24 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 via-violet-500 to-purple-500 rounded-full opacity-50" />
+            <div className="hidden lg:block absolute top-24 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full opacity-50" />
 
             {[
               { step: "1", title: "Sign In", icon: User, description: "Create your free account or log in securely", color: "from-blue-600 to-cyan-600" },

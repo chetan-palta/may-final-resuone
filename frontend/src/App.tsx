@@ -39,6 +39,14 @@ const MainApp = () => {
     }
   }, [user, data.id, autoLoaded, setResumeData, isNewResumeMode]);
 
+  // Enforce blank draft if navigating to ?new=1 but loaded data is not marked as new
+  useEffect(() => {
+    const isNewUrl = new URLSearchParams(location.search).get('new') === '1';
+    if (isNewUrl && !data.isNewResume) {
+      clearSavedData();
+    }
+  }, [location.search, data.isNewResume, clearSavedData]);
+
   const validateExtraCurricular = () => {
     for (let i = 0; i < data.extraCurricular.length; i++) {
       const words = data.extraCurricular[i].trim().split(/\s+/).filter(Boolean).length;
@@ -113,6 +121,8 @@ const MainApp = () => {
       
       if (response.data.id) {
         setResumeData({ ...payload, id: response.data.id, isNewResume: false, draftId: undefined });
+        // Update URL to prevent clearing on reload
+        window.history.replaceState(null, '', `/resume?id=${response.data.id}`);
       } else {
         setResumeData(payload);
       }
@@ -295,14 +305,18 @@ function App() {
         <Route path="/preview-test" element={
           <div style={{ background: 'white', display: 'flex', justifyContent: 'center', padding: '20px' }}>
             <LivePreview data={{
-              personalDetails: { fullName: 'Test User', email: 'test@example.com', phone: '1234567890', location: 'Remote' },
+              id: 'test-id',
+              draftId: 'test-draft',
+              isNewResume: false,
+              resumeName: 'Test Resume',
+              personalDetails: { fullName: 'Test User', email: 'test@example.com', phone: '1234567890', location: 'Remote', linkedin: '', github: '', leetcode: '', portfolio: '', targetRole: '', customLinks: [] },
               summary: 'This is a test summary to validate PDF export rendering and layout consistency across multiple sections.',
               education: [{ id: 'e1', degree: 'B.Sc Computer Science', institution: 'Test University', startDate: '2019', endDate: '2023', location: 'Test City', score: '8.5', scoreType: 'CGPA' }],
               skills: [{ id: 's1', name: 'Languages', items: 'Python, JavaScript, C++' }, { id: 's2', name: 'Tools', items: 'Docker, Git, AWS' }],
               projects: [{ id: 'p1', title: 'Project Alpha', technologies: 'React, Node', link: '', github: '', date: 'Dec 2025', description: 'An example long project description intended to test wrapping behavior in both preview and export. '.repeat(6) }],
               experience: [{ id: 'x1', company: 'ACME Corp', role: 'Software Engineer', startDate: 'May 2023', endDate: 'Present', location: 'Remote', type: 'Full-time', bulletPoints: ['Implemented feature X with performance improvements', 'Led migration to new infra', 'Wrote comprehensive tests and documentation'] }],
               extraCurricular: ['Volunteer contributor to open source projects', 'Organizer of local meetup group'],
-              certifications: [{ id: 'c1', title: 'ML for Data Science Projects', issuer: 'IBM SkillsBuild', date: '2024' }]
+              certifications: [{ id: 'c1', title: 'ML for Data Science Projects', issuer: 'IBM SkillsBuild', date: '2024', link: '', description: '' }]
             }} />
           </div>
         } />
