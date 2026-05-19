@@ -57,8 +57,8 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ data }) => {
         </div>
       </div>
 
-      {/* Global spacing reduction applied via inline style for paper */}
-      <div className="resume-paper" style={{ lineHeight: '1.2', padding: '8mm 15mm' }}>
+      {/* EXPORT_RENDERER_VERIFIED: This is the actual PDF export renderer */}
+      <div className="resume-paper" style={{ lineHeight: '1.2' }}>
         
         {/* Summary */}
         {summary && (
@@ -110,7 +110,7 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ data }) => {
             {projects.map(proj => (
               <div key={proj.id} className="resume-item">
                 <div className="resume-item-header">
-                  <span className="resume-item-title">
+                  <span className="resume-item-title" style={{ minWidth: 0, flex: 1 }}>
                     <span style={{ fontSize: '10pt', marginRight: '4px' }}>◦</span>
                     {proj.title} {proj.technologies && `(${proj.technologies})`}
                     {(proj.link || proj.github) && <span style={{ fontWeight: 'normal' }}>{' — '}</span>}
@@ -118,7 +118,7 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ data }) => {
                     {proj.link && proj.github && <span style={{ fontWeight: 'normal' }}>{' | '}</span>}
                     {proj.github && <a href={ensureHref(proj.github)} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline', color: 'black', fontWeight: 'normal' }}>GitHub</a>}
                   </span>
-                  <span className="resume-item-date">{proj.date ? `— ${proj.date}` : ''}</span>
+                  <span className="resume-item-date" style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>{proj.date ? `— ${proj.date}` : ''}</span>
                 </div>
                 <div style={{ paddingLeft: '5.5mm' }}>{proj.description}</div>
               </div>
@@ -164,8 +164,8 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ data }) => {
           </div>
         )}
 
-        {/* Certifications (Only if No ECs) */}
-        {!extraCurricular.some(e => e.trim()) && certifications.length > 0 && certifications.some(c => c.title.trim() || (c.description && c.description.trim())) && (
+        {/* Certifications (Render independently, always if data exists) */}
+        {certifications && certifications.length > 0 && certifications.some(c => (c.title && c.title.trim()) || (c.description && c.description.trim()) || (c.issuer && c.issuer.trim())) && (
           <div className="resume-section">
             <div className="resume-section-title">Certifications</div>
             {certifications.map(cert => (
