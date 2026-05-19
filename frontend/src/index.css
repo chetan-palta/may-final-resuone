@@ -50,7 +50,8 @@
     width: 210mm;
     height: 297mm;
     margin: 0;
-    padding: 0;
+    padding: 0 14mm;
+    box-sizing: border-box;
   }
 }
 
@@ -557,12 +558,14 @@ textarea.input-field {
   box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   position: relative;
   overflow: hidden;
+  padding: 0 14mm;
+  box-sizing: border-box;
 }
 
 /* The actual printable area */
 .resume-paper {
-  padding: 0 15mm 8mm 15mm;
-  width: 100%;
+  padding: 8mm 0;
+  width: 180mm;
   min-height: calc(1123px - 16mm);
   font-family: var(--font-serif);
   color: black;
@@ -572,14 +575,13 @@ textarea.input-field {
 }
 
 .resume-header {
-  padding: 8mm 15mm;
-  width: 100%;
+  text-align: center;
+  margin-bottom: 4mm;
 }
 
 .resume-name {
   font-family: var(--font-serif);
   font-size: 24pt;
-  box-sizing: border-box;
   font-weight: 700;
   margin-bottom: 2mm;
   text-transform: uppercase;
