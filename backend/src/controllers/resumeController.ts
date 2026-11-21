@@ -135,14 +135,20 @@ export const getResumePdf = async (req: Request, res: Response) => {
 
     // Prefer generating PDF from the frontend render route so the preview and export
     // use the exact same HTML/CSS/assets (fonts served by frontend).
-    // In development or debug mode, always point to local frontend to avoid using
-    // a deployed production site which may have different assets/styles.
     const frontendUrl = (process.env.NODE_ENV === 'production' && process.env.FRONTEND_URL)
-      ? process.env.FRONTEND_URL
+      ? process.env.FRONTEND_URL.replace(/\/+$/, '')
       : 'http://localhost:5173';
     const renderUrl = `${frontendUrl}/render/${id}`;
-    const { generatePdfFromUrl } = await import('../services/pdfService');
-    const pdfBuffer = await generatePdfFromUrl(renderUrl);
+    
+    let pdfBuffer: Buffer;
+    try {
+      const { generatePdfFromUrl } = await import('../services/pdfService');
+      pdfBuffer = await generatePdfFromUrl(renderUrl);
+    } catch (urlErr) {
+      console.warn('[getResumePdf] generatePdfFromUrl failed, falling back to direct HTML PDF rendering:', urlErr);
+      const { generatePdf } = await import('../services/pdfService');
+      pdfBuffer = await generatePdf(resumeData);
+    }
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Length", pdfBuffer.length.toString());
@@ -156,54 +162,42 @@ export const getResumePdf = async (req: Request, res: Response) => {
 };
 
 export const exportDirect = async (req: Request, res: Response) => {
+  const tempId = `temp-${randomUUID()}`;
   try {
     const data = req.body;
-    // Save data to an in-memory temp store when in debug mode to avoid DB dependency during tests
-    const tempId = `temp-${randomUUID()}`;
-    const debug = req.query?.debug === 'true' || req.body?.debug === true;
-    console.log('[exportDirect] debug=', debug, 'query=', req.query, 'bodyKeys=', Object.keys(req.body || {}));
-    let usedInMemory = false;
-    if (debug) {
-      if (!(global as any).__TEMP_RESUME_STORE) (global as any).__TEMP_RESUME_STORE = new Map();
-      (global as any).__TEMP_RESUME_STORE.set(tempId, data);
-      usedInMemory = true;
-    } else {
-      try {
-        await pool.query('INSERT INTO resumes (id, name, data) VALUES ($1, $2, $3)', [tempId, `export-temp-${tempId}`, JSON.stringify(data)]);
-      } catch (dbErr) {
-        console.error('[exportDirect] DB insert failed, falling back to in-memory store:', dbErr);
-        if (!(global as any).__TEMP_RESUME_STORE) (global as any).__TEMP_RESUME_STORE = new Map();
-        (global as any).__TEMP_RESUME_STORE.set(tempId, data);
-        usedInMemory = true;
-      }
-    }
+    // Save data to in-memory temp store for URL rendering without DB dependency
+    if (!(global as any).__TEMP_RESUME_STORE) (global as any).__TEMP_RESUME_STORE = new Map();
+    (global as any).__TEMP_RESUME_STORE.set(tempId, data);
 
-    // Determine frontend URL from env or default.
-    // If debug flag is set, force local frontend so exports render against the
-    // running dev preview (avoids hitting deployed production frontend).
+    const debug = req.query?.debug === 'true' || req.body?.debug === true;
+
     let frontendUrl = (process.env.NODE_ENV === 'production' && process.env.FRONTEND_URL)
-      ? process.env.FRONTEND_URL
+      ? process.env.FRONTEND_URL.replace(/\/+$/, '')
       : 'http://localhost:5173';
-    if (debug) {
+    if (debug && process.env.NODE_ENV !== 'production') {
       frontendUrl = 'http://localhost:5173';
     }
     const renderUrl = `${frontendUrl}/render/${tempId}`;
 
-    // If debug flag is set, return the render URL and keep the temp data for inspection (no PDF generation)
+    // If debug flag is set, return the render URL and keep the temp data for inspection
     if (debug) {
       res.json({ renderUrl });
       return;
     }
 
-    // Generate PDF by loading the actual frontend render route (single source of truth)
-    const { generatePdfFromUrl } = await import('../services/pdfService');
-    const pdfBuffer = await generatePdfFromUrl(renderUrl);
-
-    // Cleanup temporary row after PDF generation
-    if (usedInMemory) {
-      (global as any).__TEMP_RESUME_STORE.delete(tempId);
-    } else {
-      await pool.query('DELETE FROM resumes WHERE id = $1', [tempId]);
+    // Try generating PDF by loading the frontend render route; fallback to direct template render
+    let pdfBuffer: Buffer;
+    try {
+      const { generatePdfFromUrl } = await import('../services/pdfService');
+      pdfBuffer = await generatePdfFromUrl(renderUrl);
+    } catch (urlErr) {
+      console.warn('[exportDirect] generatePdfFromUrl failed, falling back to direct HTML rendering:', urlErr);
+      const { generatePdf } = await import('../services/pdfService');
+      pdfBuffer = await generatePdf(data);
+    } finally {
+      if ((global as any).__TEMP_RESUME_STORE) {
+        (global as any).__TEMP_RESUME_STORE.delete(tempId);
+      }
     }
 
     res.setHeader("Content-Type", "application/pdf");
@@ -211,6 +205,9 @@ export const exportDirect = async (req: Request, res: Response) => {
     res.setHeader("Content-Disposition", 'attachment; filename="resume.pdf"');
     res.send(pdfBuffer);
   } catch (error) {
+    if ((global as any).__TEMP_RESUME_STORE) {
+      (global as any).__TEMP_RESUME_STORE.delete(tempId);
+    }
     console.error('Direct PDF generation error:', error);
     res.status(500).json({ error: 'Internal server error while generating PDF', details: error instanceof Error ? error.message : String(error) });
   }

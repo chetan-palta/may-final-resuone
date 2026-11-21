@@ -1,21 +1,41 @@
 # Deploying Frontend to Vercel
 
+### Architecture Overview
+- **Hosting**: Vercel
+- **Framework**: Vite + React
+- **Frontend URL**: `https://resuone.vercel.app`
+- **Backend API**: `https://may-final-resuone.onrender.com`
+
+---
+
 ### Prerequisites
-- Deploy the backend first so you have your Railway URL!
-- Ensure your code is pushed to a GitHub repository.
+1. Render backend deployed and healthy (`https://may-final-resuone.onrender.com/api/health`).
+2. GitHub repository connected to Vercel.
 
-### Steps
+---
+
+### Step 1: Configure Project in Vercel
 1. Log in to [Vercel](https://vercel.com).
-2. Click **Add New...** -> **Project**.
-3. Import your GitHub repository.
-4. In the **Configure Project** screen:
-   - Expand **Framework Preset** and ensure it accurately detects **Vite**.
-   - Expand **Root Directory** and type **`frontend`** (if your repo contains both folders). If Vercel correctly sets the root to the `frontend` folder, it will find `package.json` and the built-in `vercel.json`.
-5. Expand **Environment Variables** and add the following:
-   - Name: `VITE_API_URL`
-   - Value: `https://your-railway-app-url.up.railway.app` (replace with your ACTUAL Railway URL)
-6. Click **Deploy**.
+2. Open your `resuone` project (or import from GitHub if not already present).
+3. If importing for the first time:
+   - **Framework Preset**: `Vite`
+   - **Root Directory**: `frontend`
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
 
-Vercel will build your frontend using `npm run build` and output it to the `dist/` directory.
+---
 
-**Expected Final URL:** Vercel will provide a URL ending in `.vercel.app`. Add this exact URL to your Railway backend's `FRONTEND_URL` variable so CORS is successfully permitted!
+### Step 2: Configure Environment Variables
+In Vercel -> Project Settings -> **Environment Variables**, configure:
+
+| Variable | Value | Environment |
+|---|---|---|
+| `VITE_API_URL` | `https://may-final-resuone.onrender.com` | Production, Preview, Development |
+| `VITE_GOOGLE_CLIENT_ID` | `67693100136-4guqlhu2dodr82gngrueus53sii1cvod.apps.googleusercontent.com` | Production, Preview, Development |
+
+---
+
+### Step 3: Trigger Deployment
+1. Go to **Deployments** tab and click **Redeploy** (or push a new commit to trigger automatic deployment).
+2. Once the build finishes, visit `https://resuone.vercel.app`.
+3. Test Google authentication and resume features!

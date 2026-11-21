@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { BrowserRouter as Router, Routes, Route, useParams, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useParams, Navigate } from 'react-router-dom';
 import { FileText, Download } from 'lucide-react';
 import { useResume } from './context/ResumeContext';
 import { LivePreview } from './components/LivePreview';
@@ -23,11 +23,9 @@ const MainApp = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [autoLoaded, setAutoLoaded] = useState(false);
-  const location = useLocation();
-  const isNewResumeMode = data.isNewResume || new URLSearchParams(location.search).get('new') === '1';
 
   useEffect(() => {
-    if (user && !data.id && !isNewResumeMode && !autoLoaded) {
+    if (user && !data.id && !autoLoaded) {
       axios.get(`${API_URL}/api/resume/user`, { withCredentials: true })
         .then(res => {
           if (res.data && res.data.id) {
@@ -37,15 +35,7 @@ const MainApp = () => {
         })
         .catch(() => setAutoLoaded(true));
     }
-  }, [user, data.id, autoLoaded, setResumeData, isNewResumeMode]);
-
-  // Enforce blank draft if navigating to ?new=1 but loaded data is not marked as new
-  useEffect(() => {
-    const isNewUrl = new URLSearchParams(location.search).get('new') === '1';
-    if (isNewUrl && !data.isNewResume) {
-      clearSavedData();
-    }
-  }, [location.search, data.isNewResume, clearSavedData]);
+  }, [user, data.id, autoLoaded, setResumeData]);
 
   const validateExtraCurricular = () => {
     for (let i = 0; i < data.extraCurricular.length; i++) {
@@ -71,7 +61,7 @@ const MainApp = () => {
     if (!validateExtraCurricular()) return;
     setIsExporting(true);
     try {
-      if (data.id && !data.isNewResume) {
+      if (data.id) {
         // Automatically save on export if logged in and managing a resume
         await axios.post(`${API_URL}/api/resumes`, data, { withCredentials: true });
       }
@@ -114,15 +104,12 @@ const MainApp = () => {
       }
       
       const payload = { ...data, resumeName: customName };
-      const shouldUpdate = Boolean(data.id && !data.isNewResume);
-      const endpoint = shouldUpdate ? '/api/resume/update' : '/api/resume/save';
-      const method = shouldUpdate ? axios.put : axios.post;
+      const endpoint = data.id ? '/api/resume/update' : '/api/resume/save';
+      const method = data.id ? axios.put : axios.post;
       const response = await method(`${API_URL}${endpoint}`, payload, { withCredentials: true });
       
       if (response.data.id) {
-        setResumeData({ ...payload, id: response.data.id, isNewResume: false, draftId: undefined });
-        // Update URL to prevent clearing on reload
-        window.history.replaceState(null, '', `/resume?id=${response.data.id}`);
+        setResumeData({ ...payload, id: response.data.id });
       } else {
         setResumeData(payload);
       }
@@ -217,8 +204,7 @@ const RenderRoute = () => {
   useEffect(() => {
     const fetchResume = async () => {
       try {
-        const base = import.meta.env.DEV ? 'http://localhost:5000' : ((typeof API_URL !== 'undefined' && API_URL) ? API_URL : '');
-        const res = await fetch(`${base}/api/resumes/${id}`, {
+        const res = await fetch(`${API_URL}/api/resumes/${id}`, {
           credentials: 'include',
         });
 
@@ -305,18 +291,14 @@ function App() {
         <Route path="/preview-test" element={
           <div style={{ background: 'white', display: 'flex', justifyContent: 'center', padding: '20px' }}>
             <LivePreview data={{
-              id: 'test-id',
-              draftId: 'test-draft',
-              isNewResume: false,
-              resumeName: 'Test Resume',
-              personalDetails: { fullName: 'Test User', email: 'test@example.com', phone: '1234567890', location: 'Remote', linkedin: '', github: '', leetcode: '', portfolio: '', targetRole: '', customLinks: [] },
+              personalDetails: { fullName: 'Test User', email: 'test@example.com', phone: '1234567890', location: 'Remote' },
               summary: 'This is a test summary to validate PDF export rendering and layout consistency across multiple sections.',
               education: [{ id: 'e1', degree: 'B.Sc Computer Science', institution: 'Test University', startDate: '2019', endDate: '2023', location: 'Test City', score: '8.5', scoreType: 'CGPA' }],
               skills: [{ id: 's1', name: 'Languages', items: 'Python, JavaScript, C++' }, { id: 's2', name: 'Tools', items: 'Docker, Git, AWS' }],
               projects: [{ id: 'p1', title: 'Project Alpha', technologies: 'React, Node', link: '', github: '', date: 'Dec 2025', description: 'An example long project description intended to test wrapping behavior in both preview and export. '.repeat(6) }],
               experience: [{ id: 'x1', company: 'ACME Corp', role: 'Software Engineer', startDate: 'May 2023', endDate: 'Present', location: 'Remote', type: 'Full-time', bulletPoints: ['Implemented feature X with performance improvements', 'Led migration to new infra', 'Wrote comprehensive tests and documentation'] }],
               extraCurricular: ['Volunteer contributor to open source projects', 'Organizer of local meetup group'],
-              certifications: [{ id: 'c1', title: 'ML for Data Science Projects', issuer: 'IBM SkillsBuild', date: '2024', link: '', description: '' }]
+              certifications: [{ id: 'c1', title: 'ML for Data Science Projects', issuer: 'IBM SkillsBuild', date: '2024' }]
             }} />
           </div>
         } />

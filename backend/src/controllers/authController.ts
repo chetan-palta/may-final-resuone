@@ -6,20 +6,28 @@ import axios from 'axios';
 
 const LOCAL_HOSTNAMES = new Set(['localhost', '127.0.0.1']);
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '67693100136-4guqlhu2dodr82gngrueus53sii1cvod.apps.googleusercontent.com';
+const isProduction = process.env.NODE_ENV === 'production';
 
-const getBackendBaseUrl = (req: Request) => {
+const getBackendBaseUrl = (req: Request): string => {
+  // If BASE_URL is explicitly configured (e.g. Render production), use it directly
+  if (process.env.BASE_URL) {
+    return process.env.BASE_URL.replace(/\/+$/, '');
+  }
+
   const forwardedProto = req.headers['x-forwarded-proto'];
   const proto = typeof forwardedProto === 'string'
     ? forwardedProto.split(',')[0].trim()
     : req.protocol;
   const host = req.get('host');
   if (host) {
-    return `${proto}://${host}`;
+    const isLocal = host.includes('localhost') || host.includes('127.0.0.1');
+    const scheme = isLocal ? proto : 'https';
+    return `${scheme}://${host}`;
   }
-  return process.env.BASE_URL || 'http://localhost:5000';
+  return 'http://localhost:5000';
 };
 
-const getAllowedFrontendOrigin = (value: unknown) => {
+const getAllowedFrontendOrigin = (value: unknown): string | null => {
   if (typeof value !== 'string' || !value) return null;
 
   try {
@@ -28,7 +36,11 @@ const getAllowedFrontendOrigin = (value: unknown) => {
     const configuredHost = configuredFrontend ? new URL(configuredFrontend).hostname : null;
     const hostname = parsed.hostname;
 
-    if (LOCAL_HOSTNAMES.has(hostname) || hostname === configuredHost) {
+    if (
+      LOCAL_HOSTNAMES.has(hostname) ||
+      hostname === configuredHost ||
+      hostname === 'resuone.vercel.app'
+    ) {
       return parsed.origin;
     }
   } catch {
@@ -65,38 +77,43 @@ const ensureDemoAdmin = async () => {
 const setSessionCookie = (res: Response, token: string) => {
   res.cookie('auth_token', token, {
     httpOnly: true,
-    secure: true, // Always true for cross-site 'none'
-    sameSite: 'none',
+    // Cross-site cookie (Vercel -> Render) requires Secure + SameSite=None over HTTPS
+    // In local development over HTTP, use SameSite=Lax and Secure=false
+    secure: isProduction ? true : false,
+    sameSite: isProduction ? 'none' : 'lax',
     path: '/',
     maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
   });
 };
 
-
-
-
-
 export const googleAuthInitiate = (req: Request, res: Response) => {
-  console.log('Google auth route hit');
-  const frontendOrigin = getAllowedFrontendOrigin(req.query.returnTo) || process.env.FRONTEND_URL || 'http://localhost:5173';
+  const frontendOrigin =
+    getAllowedFrontendOrigin(req.query.returnTo) ||
+    (process.env.FRONTEND_URL ? process.env.FRONTEND_URL.replace(/\/+$/, '') : 'https://resuone.vercel.app');
   const backendBaseUrl = getBackendBaseUrl(req);
   const redirect_uri = `${backendBaseUrl}/api/auth/google/callback`;
+
   const url = `https://accounts.google.com/o/oauth2/v2/auth?` +
-    `client_id=${GOOGLE_CLIENT_ID}` +
-    `&redirect_uri=${redirect_uri}` +
+    `client_id=${encodeURIComponent(GOOGLE_CLIENT_ID)}` +
+    `&redirect_uri=${encodeURIComponent(redirect_uri)}` +
     `&response_type=code` +
-    `&scope=profile email` +
+    `&scope=${encodeURIComponent('profile email')}` +
     `&state=${encodeURIComponent(frontendOrigin)}` +
-    `&access_type=offline`;
+    `&access_type=offline` +
+    `&prompt=select_account`;
   res.redirect(url);
 };
 
 export const googleAuthCallback = async (req: Request, res: Response) => {
   const code = req.query.code as string;
-  const frontendOrigin = getAllowedFrontendOrigin(req.query.state) || process.env.FRONTEND_URL || 'http://localhost:5173';
+  const frontendOrigin =
+    getAllowedFrontendOrigin(req.query.state) ||
+    (process.env.FRONTEND_URL ? process.env.FRONTEND_URL.replace(/\/+$/, '') : 'https://resuone.vercel.app');
   const backendBaseUrl = getBackendBaseUrl(req);
+  const redirect_uri = `${backendBaseUrl}/api/auth/google/callback`;
+
   if (!code) {
-    return res.redirect(`${frontendOrigin}/?error=google_auth_failed`);
+    return res.redirect(`${frontendOrigin}/auth?error=google_auth_failed`);
   }
   
   try {
@@ -105,7 +122,7 @@ export const googleAuthCallback = async (req: Request, res: Response) => {
       code,
       client_id: GOOGLE_CLIENT_ID,
       client_secret: process.env.GOOGLE_CLIENT_SECRET,
-      redirect_uri: `${backendBaseUrl}/api/auth/google/callback`,
+      redirect_uri,
       grant_type: "authorization_code"
     });
 
@@ -137,8 +154,8 @@ export const googleAuthCallback = async (req: Request, res: Response) => {
     
     res.redirect(`${frontendOrigin}/dashboard`);
   } catch (error) {
-    console.error('Google callback error:', error);
-    res.redirect(`${frontendOrigin}/?error=google_auth_failed`);
+    console.error('Google callback error:', error instanceof Error ? error.message : error);
+    res.redirect(`${frontendOrigin}/auth?error=google_auth_failed`);
   }
 };
 
@@ -172,18 +189,6 @@ export const register = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
-
-  if (email === DEMO_ADMIN_EMAIL && password === DEMO_ADMIN_PASSWORD) {
-    try {
-      const demoUser = await ensureDemoAdmin();
-      const token = generateToken(demoUser.id, demoUser.email, true);
-      setSessionCookie(res, token);
-      return res.json({ user: { id: demoUser.id, email: demoUser.email, name: demoUser.name, avatar: null } });
-    } catch (error) {
-      console.error('Demo login error:', error);
-      return res.status(500).json({ error: 'Demo login failed' });
-    }
-  }
 
   try {
     const { rows }: any = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
@@ -229,8 +234,8 @@ export const getSession = async (req: Request, res: Response) => {
 export const logout = (req: Request, res: Response) => {
   res.clearCookie('auth_token', {
     httpOnly: true,
-    secure: true,
-    sameSite: 'none',
+    secure: isProduction ? true : false,
+    sameSite: isProduction ? 'none' : 'lax',
     path: '/'
   });
   res.json({ message: 'Logged out successfully' });

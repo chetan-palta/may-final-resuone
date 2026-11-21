@@ -21,7 +21,9 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
     return next();
   }
 
-  const token = req.cookies.auth_token;
+  const authHeader = req.headers.authorization;
+  const bearerToken = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
+  const token = req.cookies?.auth_token || bearerToken;
   if (!token) return res.status(401).json({ error: 'Access denied. No token provided.' });
 
   try {
@@ -30,6 +32,6 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
     (req as any).user = decoded; // attaching decoded payload to req
     next();
   } catch (error) {
-    res.status(400).json({ error: 'Invalid token.' });
+    res.status(401).json({ error: 'Invalid or expired token.' });
   }
 };

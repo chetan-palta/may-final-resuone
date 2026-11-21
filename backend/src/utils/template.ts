@@ -17,7 +17,7 @@ export const renderHtml = (data: ResumeData): string => {
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: var(--font-serif); background: white; }
     .a4-container { width: 210mm; min-height: 297mm; margin: 0 auto; background: #ffffff; font-size: 11pt; line-height: 1.15; letter-spacing: -0.3px; word-spacing: -0.5px; }
-    .resume-paper { padding: 8mm 15mm; width: 100%; min-height: calc(1123px - 16mm); font-family: var(--font-serif); color: black; font-size: 11pt; line-height: 1.15; letter-spacing: -0.3px; word-spacing: -0.5px; box-sizing: border-box; }
+    .resume-paper { padding: 8mm 0; width: 180mm; min-height: calc(1123px - 16mm); font-family: var(--font-serif); color: black; font-size: 11pt; line-height: 1.15; letter-spacing: -0.3px; word-spacing: -0.5px; box-sizing: border-box; }
     .resume-header { text-align: center; margin-bottom: 3mm; width: 100%; box-sizing: border-box; }
     .resume-name { font-family: var(--font-serif); font-size: 24pt; font-weight: 700; margin-bottom: 2mm; text-transform: uppercase; color: #0b2239; }
     .resume-contact { font-size: 10.5pt; margin-bottom: 2px; display: flex; justify-content: center; flex-wrap: wrap; gap: 2px; max-width: 180mm; }

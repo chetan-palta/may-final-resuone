@@ -14,7 +14,15 @@ export const generatePdf = async (data: ResumeData): Promise<Buffer> => {
   try {
     // Launch with environment-aware config. Do not ship hardcoded Windows paths.
     const execPath = getExecutablePath();
-    const launchArgs = ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"];
+    const launchArgs = [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu",
+      "--no-first-run",
+      "--no-zygote",
+      "--single-process"
+    ];
     browser = await puppeteer.launch({
       headless: true,
       ...(execPath ? { executablePath: execPath } : {}),
@@ -48,12 +56,12 @@ export const generatePdf = async (data: ResumeData): Promise<Buffer> => {
       margin: { top: "0mm", right: "0mm", bottom: "0mm", left: "0mm" },
     });
 
-    await browser.close();
     return Buffer.from(pdfBuffer);
   } catch (error) {
     console.error("PDF generation failed:", error);
-    if (browser) await browser.close();
     throw error;
+  } finally {
+    if (browser) await browser.close().catch(() => {});
   }
 };
 
@@ -61,7 +69,15 @@ export const generatePdfFromUrl = async (url: string): Promise<Buffer> => {
   let browser;
   try {
     const execPath2 = getExecutablePath();
-    const launchArgs2 = ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"];
+    const launchArgs2 = [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu",
+      "--no-first-run",
+      "--no-zygote",
+      "--single-process"
+    ];
     browser = await puppeteer.launch({
       headless: true,
       ...(execPath2 ? { executablePath: execPath2 } : {}),
@@ -71,7 +87,7 @@ export const generatePdfFromUrl = async (url: string): Promise<Buffer> => {
     const page = await browser.newPage();
     // Match preview viewport exactly
     await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 1 });
-    await page.goto(url, { waitUntil: 'networkidle0' });
+    await page.goto(url, { waitUntil: 'networkidle0', timeout: 30000 });
 
     // Wait for the preview container to be present (SPA hydration)
     await page.waitForSelector('#resume-preview, .a4-container', { timeout: 15000 }).catch(() => {
@@ -111,7 +127,6 @@ export const generatePdfFromUrl = async (url: string): Promise<Buffer> => {
           height: `${Math.ceil(box.height)}px`
         });
 
-        await browser.close();
         return Buffer.from(pdfBuffer);
       }
     }
@@ -124,11 +139,11 @@ export const generatePdfFromUrl = async (url: string): Promise<Buffer> => {
       margin: { top: '0mm', right: '0mm', bottom: '0mm', left: '0mm' }
     });
 
-    await browser.close();
     return Buffer.from(pdfBuffer);
   } catch (error) {
     console.error('PDF from URL failed:', error);
-    if (browser) await browser.close();
     throw error;
+  } finally {
+    if (browser) await browser.close().catch(() => {});
   }
 };
